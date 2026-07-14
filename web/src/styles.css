@@ -1,0 +1,117 @@
+* { box-sizing: border-box; }
+html, body, #root { height: 100%; margin: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  background: #f0f2f5;
+  color: rgba(0, 0, 0, 0.88);
+}
+
+/* ---------- 应用外壳 ---------- */
+.app-shell { display: flex; min-height: 100dvh; }
+
+/* 桌面端左侧导航 */
+.side-nav {
+  display: none;
+  width: 208px; flex-shrink: 0;
+  background: #001529; color: #fff;
+  flex-direction: column;
+  position: sticky; top: 0; height: 100dvh;
+}
+.side-nav .brand {
+  display: flex; align-items: center; gap: 10px;
+  padding: 18px 20px 16px; border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.side-nav .brand .logo {
+  width: 34px; height: 34px; border-radius: 7px; background: #0958d9;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 13px; color: #fff; letter-spacing: 1px;
+}
+.side-nav .brand .brand-name { font-size: 15px; font-weight: 600; line-height: 1.2; }
+.side-nav .brand .brand-sub { font-size: 11px; color: rgba(255,255,255,0.45); }
+.side-nav .nav-links { flex: 1; padding: 10px 8px; }
+.side-nav .nav-links a {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; margin-bottom: 2px; border-radius: 6px;
+  color: rgba(255,255,255,0.68); text-decoration: none; font-size: 14px;
+  transition: background 0.15s, color 0.15s;
+}
+.side-nav .nav-links a:hover { color: #fff; background: rgba(255,255,255,0.06); }
+.side-nav .nav-links a.active { color: #fff; background: #0958d9; }
+.side-nav .nav-user {
+  padding: 14px 20px; border-top: 1px solid rgba(255,255,255,0.08);
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: 13px; color: rgba(255,255,255,0.85);
+}
+.side-nav .nav-user .logout { color: rgba(255,255,255,0.45); cursor: pointer; }
+.side-nav .nav-user .logout:hover { color: #fff; }
+
+.app-main {
+  flex: 1; min-width: 0;
+  padding: 12px 12px 76px;
+  max-width: 1280px; width: 100%; margin: 0 auto;
+}
+
+/* 移动端底部导航 */
+.bottom-nav {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
+  display: flex; background: #fff; border-top: 1px solid #e5e7eb;
+  padding-bottom: env(safe-area-inset-bottom);
+  box-shadow: 0 -1px 6px rgba(0,0,0,0.04);
+}
+.bottom-nav a {
+  flex: 1; text-align: center; padding: 7px 0 5px; text-decoration: none;
+  color: #8c8c8c; font-size: 11px; line-height: 1.4;
+}
+.bottom-nav a .nav-icon { font-size: 20px; display: block; margin-bottom: 1px; }
+.bottom-nav a.active { color: #0958d9; font-weight: 600; }
+
+@media (min-width: 992px) {
+  .side-nav { display: flex; }
+  .bottom-nav { display: none; }
+  .app-main { padding: 20px 24px 32px; }
+}
+
+/* ---------- 页面元素 ---------- */
+.page-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 14px; gap: 8px; flex-wrap: wrap;
+}
+.page-title { font-size: 18px; font-weight: 600; margin: 0; }
+
+.panel {
+  background: #fff; border: 1px solid #ebedf0; border-radius: 8px;
+  padding: 14px 16px; margin-bottom: 14px;
+}
+
+.filter-bar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+.filter-bar > * { flex: 1 1 150px; min-width: 140px; }
+
+/* 单据卡片 (移动端) */
+.doc-card {
+  background: #fff; border: 1px solid #ebedf0; border-radius: 8px;
+  padding: 12px 14px; margin-bottom: 10px; cursor: pointer;
+  transition: box-shadow 0.15s;
+}
+.doc-card:active { box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+.doc-card-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.doc-card .doc-no { font-weight: 600; font-size: 13.5px; font-variant-numeric: tabular-nums; }
+.doc-card .doc-meta { color: #6b7280; font-size: 12.5px; margin-top: 6px; display: flex; flex-wrap: wrap; gap: 3px 12px; }
+.doc-card .doc-qty { font-size: 15px; font-weight: 600; color: #0958d9; margin-top: 6px; font-variant-numeric: tabular-nums; }
+
+/* 溯源时间线 */
+.trace-stage-tag { font-size: 12px; }
+.trace-event { padding-bottom: 4px; }
+.trace-event .t-title { font-weight: 600; font-size: 13.5px; }
+.trace-event .t-sub { color: #6b7280; font-size: 12.5px; margin-top: 2px; }
+
+/* 数字列 */
+.num { font-variant-numeric: tabular-nums; }
+
+/* 统计卡 */
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
+.stat-card {
+  background: #fff; border: 1px solid #ebedf0; border-radius: 8px; padding: 14px 16px;
+}
+.stat-card .s-label { color: #6b7280; font-size: 12px; margin-bottom: 4px; }
+.stat-card .s-value { font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.stat-card .s-value.primary { color: #0958d9; }

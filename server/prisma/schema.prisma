@@ -1,0 +1,122 @@
+// 慈德ERP — web/mobile client database schema
+// Provider is sqlserver to match the production Alicloud database.
+// NOTE: keep this schema free of provider-specific native types and enums
+// (SQL Server provider does not support Prisma enums) so the provider can
+// be swapped for local testing if needed.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlserver"
+  url      = env("DATABASE_URL")
+}
+
+// ---------- 基础资料 (master data) ----------
+
+model User {
+  id           Int       @id @default(autoincrement())
+  username     String    @unique
+  passwordHash String
+  displayName  String // e.g. 张忠立
+  roles        String // comma separated: ADMIN,WAREHOUSE  (系统管理员/仓库管理员)
+  active       Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  createdDocs  Document[] @relation("createdBy")
+  approvedDocs Document[] @relation("approvedBy")
+}
+
+model Warehouse {
+  id        Int        @id @default(autoincrement())
+  code      String     @unique
+  name      String // e.g. 虫卵主库
+  active    Boolean    @default(true)
+  documents Document[]
+}
+
+model Supplier {
+  id        Int        @id @default(autoincrement())
+  code      String?
+  name      String     @unique // e.g. 王昱峰, 牧怡, 马如令
+  active    Boolean    @default(true)
+  documents Document[]
+}
+
+model Customer {
+  id        Int        @id @default(autoincrement())
+  code      String?
+  name      String     @unique
+  active    Boolean    @default(true)
+  documents Document[]
+}
+
+// 物料: 毛料 RAW / 半成品 SEMI / 成品 FINISHED
+model Material {
+  id        Int            @id @default(autoincrement())
+  code      String         @unique // 物料编码 e.g. WYL.WXF.001
+  name      String // 品名 e.g. 毛料
+  category  String // RAW | SEMI | FINISHED
+  unit      String // 计量单位 e.g. 千克, 袋
+  packaging String? // 包装物 e.g. 编织袋
+  active    Boolean        @default(true)
+  lines     DocumentLine[]
+}
+
+// ---------- 单据 (documents) ----------
+// docType:
+//   PURCHASE_IN 采购入库(毛料入库) | PRODUCTION_IN 生产入库 | OTHER_IN 其它入库
+//   MATERIAL_OUT 毛料出库 | PRODUCTION_OUT 生产出库 | SALES_OUT 销售出库 | OTHER_OUT 其它出库
+//   GAIN 盘盈 | LOSS 盘亏
+// status: DRAFT 草稿 | APPROVED 已审核
+model Document {
+  id          Int       @id @default(autoincrement())
+  docNo       String    @unique // e.g. CGRK0002001279
+  docType     String
+  date        DateTime // 单据日期
+  status      String    @default("DRAFT")
+  warehouseId Int
+  warehouse   Warehouse @relation(fields: [warehouseId], references: [id], onUpdate: NoAction)
+  supplierId  Int?
+  supplier    Supplier? @relation(fields: [supplierId], references: [id], onUpdate: NoAction)
+  customerId  Int?
+  customer    Customer? @relation(fields: [customerId], references: [id], onUpdate: NoAction)
+  vehicleNo   String? // 车次 e.g. 25-14
+  remark      String?
+  createdById Int
+  createdBy   User      @relation("createdBy", fields: [createdById], references: [id], onUpdate: NoAction)
+  approvedById Int?
+  approvedBy  User?     @relation("approvedBy", fields: [approvedById], references: [id], onUpdate: NoAction)
+  approvedAt  DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  lines DocumentLine[]
+
+  @@index([docType, date])
+  @@index([status])
+}
+
+model DocumentLine {
+  id            Int      @id @default(autoincrement())
+  documentId    Int
+  document      Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  materialId    Int
+  material      Material @relation(fields: [materialId], references: [id], onUpdate: NoAction)
+  batchNo       String? // 批次/车次
+  retrievalCode String? // 检索码 e.g. WXF.XH.25...
+  origin        String? // 产地 e.g. 咸海, HSK, TK, 斯库求克
+  quantity      Decimal // 数量 (入库数量/出库数量)
+  unit          String // 计量单位
+  weight        Decimal? // 重量(千克), 当计量单位不是千克时可另记重量
+  packaging     String? // 包装物
+  note          String?
+
+  @@index([materialId])
+}
+
+// 单据编号序列
+model DocCounter {
+  docType String @id
+  seq     Int
+}

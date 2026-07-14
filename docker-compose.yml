@@ -1,0 +1,19 @@
+# Local SQL Server for development.
+# On Apple Silicon Macs, enable "Use Rosetta for x86_64/amd64 emulation"
+# in Docker Desktop settings (Settings > General).
+services:
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    platform: linux/amd64
+    container_name: cide-erp-mssql
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "CideErp!2026"
+      MSSQL_PID: "Developer"
+    ports:
+      - "1433:1433"
+    volumes:
+      - mssql-data:/var/opt/mssql
+
+volumes:
+  mssql-data:

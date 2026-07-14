@@ -1,0 +1,2972 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/cloud"
+}
+
+datasource db {
+  provider = "sqlserver"
+  url      = env("CLOUD_DATABASE_URL")
+}
+
+model itemp {
+  id   BigInt  @id(map: "PK_itemp") @default(autoincrement())
+  text String? @db.VarChar(500)
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model Sheet_temp {
+
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 编号 String? @map("编号") @db.NVarChar(255)
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 收支方式 String? @map("收支方式") @db.NVarChar(255)
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 收支 String? @map("收支") @db.NVarChar(255)
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 部门 String? @map("部门") @db.NVarChar(255)
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 费用类别 String? @map("费用类别") @db.NVarChar(255)
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 人员 String? @map("人员") @db.NVarChar(255)
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 时间 DateTime? @map("时间") @db.DateTime
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 期初金额 Float? @map("期初金额")
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 金额 Float? @map("金额")
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 余额 Float? @map("余额")
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 客户 String? @map("客户") @db.NVarChar(255)
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 单据号 String? @map("单据号") @db.NVarChar(255)
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 单据类型 String? @map("单据类型") @db.NVarChar(255)
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 用途备注 String? @map("用途备注") @db.NVarChar(255)
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 银行 String? @map("银行") @db.NVarChar(255)
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 承兑数量 String? @map("承兑数量") @db.NVarChar(255)
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 开票状态 String? @map("开票状态") @db.NVarChar(255)
+  /// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+  // 承兑号 String? @map("承兑号") @db.NVarChar(255)
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model t_a_accept_temp {
+  ID                   String    @db.VarChar(20)
+  date_time            DateTime? @db.DateTime
+  acceptancenumber     String?   @db.VarChar(50)
+  cust                 String?   @db.VarChar(20)
+  common_bank          String?   @db.VarChar(20)
+  amount_in            Decimal?  @db.Decimal(18, 2)
+  sz_type              String?   @db.VarChar(5)
+  fee_type             String?   @db.VarChar(5)
+  personnel            String?   @db.VarChar(20)
+  dept                 String?   @db.VarChar(20)
+  memo                 String?   @db.VarChar(200)
+  out_date             DateTime? @db.DateTime
+  out_acceptancenumber String?   @db.VarChar(50)
+  amount_out           Decimal?  @db.Decimal(18, 2)
+  to_cust              String?   @db.VarChar(20)
+  valid_date           DateTime? @db.DateTime
+  out_id               String    @db.VarChar(20)
+  out_status           String?   @db.VarChar(20)
+
+  @@ignore
+}
+
+model t_a_asset {
+  asset             String              @id(map: "PK_T_A_ASSET") @db.VarChar(20)
+  asset_name        String              @db.VarChar(200)
+  come_date         DateTime?           @db.DateTime
+  begin_date        DateTime            @db.DateTime
+  begin_value       Decimal             @db.Decimal(18, 2)
+  month_reduce      Decimal             @db.Decimal(18, 2)
+  current_value     Decimal?            @db.Decimal(18, 2)
+  s_status          String?             @db.VarChar(20)
+  memo              String?             @db.VarChar(500)
+  end_reduce_time   DateTime?           @db.DateTime
+  asset_type        String?             @db.VarChar(20)
+  dispose_time      DateTime?           @db.DateTime
+  reduce_year       Int?
+  rest_rate         Decimal?            @db.Decimal(18, 2)
+  rest_value        Decimal?            @db.Decimal(18, 2)
+  t_a_asset_type    t_a_asset_type?     @relation(fields: [asset_type], references: [asset_type], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_A_ASSE_RT_A_ASSE_213")
+  t_a_asset_percent t_a_asset_percent[]
+}
+
+model t_a_asset_percent {
+  dept          String    @db.VarChar(20)
+  asset         String    @db.VarChar(20)
+  asset_percent Decimal   @db.Decimal(18, 4)
+  memo          String?   @db.VarChar(200)
+  t_a_dept      t_a_dept  @relation(fields: [dept], references: [dept], onUpdate: NoAction, map: "FK_T_A_ASSET_DEPT__198")
+  t_a_asset     t_a_asset @relation(fields: [asset], references: [asset], onUpdate: NoAction, map: "FK_T_A_ASSET_PERCENT_199")
+
+  @@id([dept, asset], map: "PK_T_A_ASSET_PERCENT")
+}
+
+model t_a_asset_type {
+  asset_type      String      @id(map: "PK_T_A_ASSET_TYPE") @db.VarChar(20)
+  asset_type_name String?     @db.VarChar(50)
+  type_memo       String?     @db.VarChar(200)
+  t_a_asset       t_a_asset[]
+}
+
+model t_a_bank {
+  bank              String              @id(map: "PK_T_A_BANK") @db.VarChar(20)
+  bank_name         String              @db.VarChar(50)
+  t_a_cust_bank     t_a_cust_bank[]
+  t_a_my_bank       t_a_my_bank[]
+  t_a_supplier_bank t_a_supplier_bank[]
+}
+
+model t_a_bank_start {
+  my_bank     String      @id(map: "PK_T_A_BANK_START") @db.VarChar(20)
+  amount      Decimal     @db.Decimal(18, 2)
+  memo        String?     @db.VarChar(200)
+  t_a_my_bank t_a_my_bank @relation(fields: [my_bank], references: [my_bank], onUpdate: NoAction, map: "FK_T_A_BANK_A_MY_sART_165")
+}
+
+model t_a_batch_no {
+  batch_no         String             @id(map: "PK_T_A_BATCH_NO") @db.VarChar(20)
+  batch_no_name    String             @db.VarChar(20)
+  list_no          Int?
+  memo             String?            @db.VarChar(20)
+  s_status         String?            @db.VarChar(20)
+  batch_no_code    String             @db.VarChar(20)
+  t_a_s_code       t_a_s_code[]
+  t_purchase_batch t_purchase_batch[]
+}
+
+model t_a_bom {
+  bom_id                                              String              @id(map: "PK_t_a_bom_1") @db.VarChar(20)
+  bom_caption                                         String              @db.VarChar(50)
+  material_id                                         String              @db.VarChar(50)
+  defect_rate                                         Decimal             @db.Decimal(18, 4)
+  cost_price                                          Decimal?            @db.Decimal(18, 8)
+  weight                                              Decimal             @db.Decimal(18, 4)
+  weight_unit                                         String              @db.VarChar(5)
+  imagedata                                           String?             @db.VarChar(Max)
+  left_weight                                         Decimal             @db.Decimal(18, 4)
+  left_material_id                                    String              @db.VarChar(50)
+  memo                                                String?             @db.VarChar(200)
+  work_bill_type                                      String?             @db.VarChar(20)
+  banzhong                                            String?             @db.VarChar(50)
+  baozhuang                                           String?             @db.VarChar(50)
+  paiban                                              String?             @db.VarChar(50)
+  date_time                                           DateTime?           @db.DateTime
+  s_status                                            String?             @default("未审核", map: "DF_t_a_bom_s_status") @db.VarChar(20)
+  entry_person                                        String?             @db.VarChar(20)
+  audit_person                                        String?             @db.VarChar(20)
+  audit_time                                          DateTime?           @db.DateTime
+  t_a_material_t_a_bom_left_material_idTot_a_material t_a_material        @relation("t_a_bom_left_material_idTot_a_material", fields: [left_material_id], references: [material_id], onUpdate: NoAction, map: "FK_BOM_MATERIAL_157")
+  t_a_material_t_a_bom_material_idTot_a_material      t_a_material        @relation("t_a_bom_material_idTot_a_material", fields: [material_id], references: [material_id], onUpdate: NoAction, map: "FK_T_A_BOM_REFERENCE_T_A_MATE")
+  t_a_unit                                            t_a_unit            @relation(fields: [weight_unit], references: [unit], onUpdate: NoAction, map: "FK_T_A_BOM_T_weight_UNIT_ref")
+  t_a_work_bill_type                                  t_a_work_bill_type? @relation(fields: [work_bill_type], references: [work_bill_type], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_A_BOM_WORK_type159")
+  t_a_bom_material                                    t_a_bom_material[]
+  t_work_bill                                         t_work_bill[]
+}
+
+model t_a_bom_material {
+  bom_id             String          @db.VarChar(20)
+  material_id        String          @db.VarChar(50)
+  quantity           Decimal?        @db.Decimal(18, 8)
+  unit               String?         @db.VarChar(5)
+  memo               String?         @db.VarChar(200)
+  detail_defect_rate Decimal?        @db.Decimal(18, 4)
+  policy             String?         @db.VarChar(20)
+  t_a_bom            t_a_bom         @relation(fields: [bom_id], references: [bom_id], onUpdate: NoAction, map: "FK_T_A_BOM___BOM_id")
+  t_a_bom_policy     t_a_bom_policy? @relation(fields: [policy], references: [policy], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_A_BOM__POLICY01")
+  t_a_material       t_a_material    @relation(fields: [material_id], references: [material_id], onUpdate: NoAction, map: "FK_T_A_BOM__REFERENCE_T_A_MATE")
+  t_a_unit           t_a_unit?       @relation(fields: [unit], references: [unit], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_A_BOM_UNIT_material_number_unit")
+
+  @@id([bom_id, material_id], map: "PK_T_A_BOM_MATERIAL")
+}
+
+model t_a_bom_policy {
+  policy           String             @id(map: "PK_T_A_BOM_POLICY") @db.VarChar(20)
+  policy_name      String             @db.VarChar(100)
+  t_a_bom_material t_a_bom_material[]
+}
+
+model t_a_cash_start {
+  ID     String  @id(map: "PK_T_A_CASH_START") @db.VarChar(20)
+  amount Decimal @db.Decimal(18, 2)
+  memo   String? @db.VarChar(200)
+}
+
+model t_a_comment_item {
+  item                   String                   @id(map: "PK_T_A_COMMENT_ITEM") @db.VarChar(20)
+  item_name              String                   @db.VarChar(50)
+  t_a_comment_permission t_a_comment_permission[]
+}
+
+model t_a_comment_permission {
+  post             String           @db.VarChar(20)
+  item             String           @db.VarChar(20)
+  sort             Int?
+  t_a_comment_item t_a_comment_item @relation(fields: [item], references: [item], onUpdate: NoAction, map: "FK_T_A_COMM_REFERENCE_T_A_COMMghkts")
+  t_a_role         t_a_role         @relation(fields: [post], references: [id], onUpdate: NoAction, map: "FK_T_A_COMMt_ref_A_ROLE123")
+
+  @@id([post, item], map: "PK_T_A_COMMENT_PERMISSION")
+}
+
+model t_a_common_bank {
+  common_bank      String      @id(map: "PK_T_A_COMMON_BANK") @db.VarChar(20)
+  common_bank_name String      @db.VarChar(50)
+  t_a_found        t_a_found[]
+}
+
+model t_a_currency {
+  currency      String         @id(map: "PK_T_A_CURRENCY") @db.VarChar(20)
+  currency_name String         @db.VarChar(20)
+  t_a_found     t_a_found[]
+  t_a_my_bank   t_a_my_bank[]
+  t_purchase    t_purchase[]
+  t_sales_bill  t_sales_bill[]
+}
+
+model t_a_cust {
+  cust              String             @id(map: "PK_T_A_CUST") @db.VarChar(20)
+  cust_type         String             @db.VarChar(5)
+  cust_name         String             @db.VarChar(50)
+  link_person       String?            @db.VarChar(100)
+  fax               String?            @db.VarChar(100)
+  tel               String?            @db.VarChar(100)
+  email             String?            @db.VarChar(100)
+  address           String?            @db.VarChar(100)
+  duty_person       String?            @db.VarChar(100)
+  duty_no           String?            @db.VarChar(50)
+  charge_person     String?            @db.VarChar(20)
+  balance_type      String?            @db.VarChar(50)
+  balance_date      String?            @db.VarChar(50)
+  stock             String?            @db.VarChar(20)
+  c_status          String?            @default("有效", map: "cust_status_Default") @db.VarChar(50)
+  cust_pay_days     Int?
+  list_no           Int?
+  t_a_personnel     t_a_personnel?     @relation(fields: [charge_person], references: [personnel], onDelete: NoAction, onUpdate: NoAction, map: "FK_person_1000")
+  t_a_cust_type     t_a_cust_type      @relation(fields: [cust_type], references: [cust_type], onUpdate: NoAction, map: "FK_T_A_CUST_REFERENCE_T_A_CUST123")
+  t_a_stock         t_a_stock?         @relation(fields: [stock], references: [stock], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_A_CUST_REFERENCE_T_A_STOC_160")
+  t_a_cust_bank     t_a_cust_bank[]
+  t_a_material      t_a_material[]
+  t_a_receive_start t_a_receive_start?
+  t_dev_bill        t_dev_bill[]
+  t_f_cust_receive  t_f_cust_receive[]
+  t_receivable      t_receivable[]
+  t_sale_price      t_sale_price[]
+  t_sales_bill      t_sales_bill[]
+  t_sales_debit     t_sales_debit[]
+  t_stock_in        t_stock_in[]
+  t_stock_out       t_stock_out[]
+}
+
+model t_a_cust_bank {
+  cust      String   @db.VarChar(20)
+  card      String   @db.VarChar(50)
+  bank      String   @db.VarChar(20)
+  bank_name String   @db.VarChar(50)
+  is_basic  Boolean
+  t_a_bank  t_a_bank @relation(fields: [bank], references: [bank], onUpdate: NoAction, map: "FK_T_A_CUST_REFERENCE_T_A_BANK")
+  t_a_cust  t_a_cust @relation(fields: [cust], references: [cust], onUpdate: NoAction, map: "FK_T_A_CUST_REFERENCE_T_A_CUST")
+
+  @@id([cust, card], map: "PK_T_A_CUST_BANK")
+}
+
+model t_a_cust_type {
+  cust_type           String          @id(map: "PK_T_A_CUST_TYPE") @db.VarChar(5)
+  father              String?         @db.VarChar(5)
+  cust_type_name      String          @db.VarChar(20)
+  s_status            String          @db.VarChar(20)
+  t_a_cust            t_a_cust[]
+  t_a_cust_type       t_a_cust_type?  @relation("t_a_cust_typeTot_a_cust_type", fields: [father], references: [cust_type], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_A_CUST_T_A_CUST_self15")
+  other_t_a_cust_type t_a_cust_type[] @relation("t_a_cust_typeTot_a_cust_type")
+}
+
+model t_a_danju_type {
+  object_type String      @id(map: "PK_T_A_DANJU_TYPE") @db.VarChar(20)
+  object_name String      @db.VarChar(20)
+  t_a_found   t_a_found[]
+}
+
+model t_a_dept {
+  dept                       String                       @id(map: "PK_T_A_DEPT") @db.VarChar(20)
+  dept_name                  String                       @db.VarChar(50)
+  father                     String?                      @db.VarChar(20)
+  s_status                   String                       @db.VarChar(20)
+  t_a_asset_percent          t_a_asset_percent[]
+  t_a_dept                   t_a_dept?                    @relation("t_a_deptTot_a_dept", fields: [father], references: [dept], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_A_DEPT_REFERENCE_T_A_DEPT")
+  other_t_a_dept             t_a_dept[]                   @relation("t_a_deptTot_a_dept")
+  t_a_dept_work_bill_type    t_a_dept_work_bill_type[]
+  t_a_equipment              t_a_equipment[]
+  t_a_found                  t_a_found[]
+  t_a_personnel              t_a_personnel[]
+  t_a_role                   t_a_role[]
+  t_f_code                   t_f_code[]
+  t_pay_request              t_pay_request[]
+  t_purchase                 t_purchase[]
+  t_r_year_month_in          t_r_year_month_in[]
+  t_sales_bill               t_sales_bill[]
+  t_work_bill_attach_comment t_work_bill_attach_comment[]
+}
+
+model t_a_dept_work_bill_type {
+  work_bill_type     String             @db.VarChar(20)
+  dept               String             @db.VarChar(20)
+  t_a_dept           t_a_dept           @relation(fields: [dept], references: [dept], onUpdate: NoAction, map: "FK_T_A_DEPT_bill_type_207")
+  t_a_work_bill_type t_a_work_bill_type @relation(fields: [work_bill_type], references: [work_bill_type], onUpdate: NoAction, map: "FK_T_A_workbill_dept_206")
+
+  @@id([work_bill_type, dept], map: "PK_T_A_DEPT_WORK_BILL_TYPE")
+}
+
+model t_a_education {
+  education      String @id(map: "PK_T_A_EDUCATION") @db.VarChar(20)
+  education_name String @db.VarChar(20)
+}
+
+model t_a_equipment {
+  equipment       String    @id(map: "PK_T_A_EQUIPMENT") @db.VarChar(20)
+  dept            String    @db.VarChar(20)
+  equipment_no    String?   @db.VarChar(50)
+  equipment_name  String    @db.VarChar(200)
+  position        String?   @db.VarChar(200)
+  begin_date      DateTime  @db.DateTime
+  begin_value     Decimal   @db.Decimal(18, 2)
+  month_reduce    Decimal   @db.Decimal(18, 2)
+  current_value   Decimal?  @db.Decimal(18, 2)
+  s_status        String    @db.VarChar(20)
+  manufacturer    String?   @db.VarChar(200)
+  address         String?   @db.VarChar(200)
+  tel             String?   @db.VarChar(200)
+  link_person1    String?   @db.VarChar(200)
+  link_person2    String?   @db.VarChar(200)
+  link_person3    String?   @db.VarChar(200)
+  main_spec       String?   @db.VarChar(500)
+  img_url         String?   @db.VarChar(200)
+  memo            String?   @db.VarChar(500)
+  operation       String?   @db.VarChar(500)
+  come_date       DateTime  @db.DateTime
+  entry_person    String    @db.VarChar(20)
+  date_time       DateTime  @db.DateTime
+  end_reduce_time DateTime? @db.DateTime
+  reduce_year     Int?
+  rest_rate       Decimal?  @db.Decimal(18, 2)
+  rest_value      Decimal?  @db.Decimal(18, 2)
+  code            String?   @db.VarChar(20)
+  fyear           Int?
+  fperiod         Int?
+  t_a_dept        t_a_dept  @relation(fields: [dept], references: [dept], onUpdate: NoAction, map: "FK_T_A_EQUI_DEPT_196")
+  t_f_code        t_f_code? @relation(fields: [code], references: [code], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_A_EQUI_RE_CODE_282")
+}
+
+model t_a_fee_type {
+  fee_type           String           @id(map: "PK_T_A_FEE_TYPE") @db.VarChar(5)
+  fee_name           String           @db.VarChar(50)
+  father_type        String?          @db.VarChar(5)
+  sort_no            Int?
+  t_a_fee_type       t_a_fee_type?    @relation("t_a_fee_typeTot_a_fee_type", fields: [father_type], references: [fee_type], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_A_FEE__REA_FEE__50")
+  other_t_a_fee_type t_a_fee_type[]   @relation("t_a_fee_typeTot_a_fee_type")
+  t_a_found          t_a_found[]
+  t_m_fee            t_m_fee[]
+  t_m_fee_sum        t_m_fee_sum[]
+  t_purchase_fee     t_purchase_fee[]
+}
+
+model t_a_found {
+  ID                          String                        @id(map: "PK_T_A_FOUND") @db.VarChar(20)
+  sz_type                     String?                       @db.VarChar(5)
+  sz_category                 String?                       @db.VarChar(5)
+  dept                        String?                       @db.VarChar(20)
+  fee_type                    String?                       @db.VarChar(5)
+  personnel                   String?                       @db.VarChar(20)
+  date_time                   DateTime?                     @db.DateTime
+  amount                      Decimal?                      @db.Decimal(18, 2)
+  cust                        String?                       @db.VarChar(20)
+  object_no                   String?                       @db.VarChar(20)
+  object_type                 String?                       @db.VarChar(20)
+  memo                        String?                       @db.VarChar(200)
+  image                       Bytes?
+  found_type                  String                        @db.VarChar(20)
+  card                        String?                       @db.VarChar(50)
+  acceptancenumber            String?                       @db.VarChar(50)
+  acceptancecount             String?                       @db.VarChar(20)
+  amount_before               Decimal?                      @db.Decimal(18, 2)
+  amount_after                Decimal?                      @db.Decimal(18, 2)
+  currency                    String?                       @db.VarChar(20)
+  common_bank                 String?                       @db.VarChar(20)
+  out_status                  String?                       @db.VarChar(20)
+  valid_date                  DateTime?                     @db.DateTime
+  in_id                       String?                       @db.VarChar(20)
+  sales_bill_status           String?                       @default("未开票", map: "DF_t_a_found_sales_bill_status") @db.VarChar(20)
+  request_pay_id              String?                       @db.VarChar(20)
+  amount_before_bak           Decimal?                      @db.Decimal(18, 2)
+  amount_after_bak            Decimal?                      @db.Decimal(18, 2)
+  d_bill_time                 Decimal?                      @db.Decimal(18, 2)
+  t_a_common_bank             t_a_common_bank?              @relation(fields: [common_bank], references: [common_bank], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_A_FOUN_COMM_BANK_179")
+  t_a_currency                t_a_currency?                 @relation(fields: [currency], references: [currency], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_A_FOUN_CURRency178")
+  t_a_found                   t_a_found?                    @relation("t_a_foundTot_a_found", fields: [in_id], references: [ID], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_A_FOUN_FOUN_180")
+  other_t_a_found             t_a_found[]                   @relation("t_a_foundTot_a_found")
+  t_pay_request               t_pay_request?                @relation(fields: [request_pay_id], references: [request_pay_id], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_A_FOUN_PAY_RE_194")
+  t_a_danju_type              t_a_danju_type?               @relation(fields: [object_type], references: [object_type], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_A_FOUN_REFERENCE_T_A_DANJ")
+  t_a_dept                    t_a_dept?                     @relation(fields: [dept], references: [dept], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_A_FOUN_REFERENCE_T_A_DEPT")
+  t_a_fee_type                t_a_fee_type?                 @relation(fields: [fee_type], references: [fee_type], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_A_FOUN_REFERENCE_T_A_FEE_")
+  t_a_personnel               t_a_personnel?                @relation(fields: [personnel], references: [personnel], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_A_FOUN_REFERENCE_T_A_PERS")
+  t_a_sz_category             t_a_sz_category?              @relation(fields: [sz_category], references: [sz_category], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_A_FOUN_REFERENCE_T_A_SZ_C")
+  t_a_sz_type                 t_a_sz_type?                  @relation(fields: [sz_type], references: [sz_type], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_A_FOUN_REFERENCE_T_A_SZ_T")
+  t_pay_found_purchase_divide t_pay_found_purchase_divide[]
+  t_pay_request_found_refer   t_pay_request_found_refer[]
+  t_sales_bill                t_sales_bill[]
+}
+
+model t_a_group_data_value {
+  group_data_id String       @id(map: "PK_T_A_GROUP_DATA_VALUE") @db.VarChar(20)
+  fk_group_id   String?      @db.VarChar(20)
+  child_value   String?      @db.VarChar(Max)
+  is_in         Boolean?
+  res_id        String?      @db.VarChar(100)
+  t_usergroup   t_usergroup? @relation(fields: [fk_group_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_A_GROU_REFERENCE_T_USERGR")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model t_a_group_user {
+  fk_group      String?        @db.VarChar(20)
+  personnel     String?        @db.VarChar(20)
+  fk_user       String?        @db.VarChar(20)
+  t_a_personnel t_a_personnel? @relation(fields: [personnel], references: [personnel], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_A_GROU_REFERENCE_T_A_PERS")
+  t_usergroup   t_usergroup?   @relation(fields: [fk_group], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_GROUP__REFERENCE_T_USERGR2")
+
+  @@ignore
+}
+
+model t_a_in_type {
+  in_type      String        @id(map: "PK_T_A_IN_TYPE") @db.VarChar(5)
+  in_type_name String        @db.VarChar(20)
+  t_stock_in   t_stock_in[]
+  t_stock_out  t_stock_out[]
+}
+
+model t_a_man_address {
+  man_address        String               @id(map: "PK_T_A_MAN_ADDRESS") @db.VarChar(20)
+  man_address_name   String               @db.VarChar(20)
+  list_no            Int?
+  memo               String?              @db.VarChar(20)
+  s_status           String?              @default("有效", map: "DF_t_a_man_address_s_status") @db.VarChar(20)
+  man_address_no     String               @db.VarChar(20)
+  t_a_s_code         t_a_s_code[]
+  t_stock_in_detail  t_stock_in_detail[]
+  t_stock_out_detail t_stock_out_detail[]
+}
+
+model t_a_material {
+  material_id                                                  String                    @id(map: "PK_T_A_MATERIAL") @db.VarChar(50)
+  material_no                                                  String?                   @db.VarChar(100)
+  material_type                                                String                    @db.VarChar(50)
+  unit                                                         String                    @db.VarChar(5)
+  caizhi                                                       String?                   @db.VarChar(5)
+  material_name                                                String                    @db.VarChar(50)
+  spec                                                         String?                   @db.VarChar(100)
+  weight                                                       Decimal?                  @db.Decimal(18, 4)
+  weight_unit                                                  String?                   @default("02", map: "DF_t_a_material_weight_unit") @db.VarChar(5)
+  supplier                                                     String?                   @db.VarChar(20)
+  cust                                                         String?                   @db.VarChar(20)
+  color                                                        String?                   @db.VarChar(10)
+  cust_material                                                String?                   @db.VarChar(50)
+  import                                                       String?                   @db.VarChar(50)
+  m_status                                                     String?                   @default("有效", map: "DF_t_a_material_m_status") @db.VarChar(50)
+  price                                                        Decimal?                  @default(0.0000, map: "DF_t_a_material_price") @db.Decimal(18, 8)
+  c_type                                                       String?                   @db.VarChar(20)
+  pack_unit                                                    String?                   @db.VarChar(5)
+  pack_spec                                                    Decimal?                  @db.Decimal(18, 2)
+  man_address                                                  String?                   @db.VarChar(50)
+  material_sort                                                String                    @default("虫卵", map: "DF__t_a_mater__mater__302F0D3D") @db.VarChar(20)
+  t_a_bom_t_a_bom_left_material_idTot_a_material               t_a_bom[]                 @relation("t_a_bom_left_material_idTot_a_material")
+  t_a_bom_t_a_bom_material_idTot_a_material                    t_a_bom[]                 @relation("t_a_bom_material_idTot_a_material")
+  t_a_bom_material                                             t_a_bom_material[]
+  t_a_supplier                                                 t_a_supplier?             @relation(fields: [supplier], references: [supplier], onDelete: NoAction, onUpdate: NoAction, map: "FK_SUPP14578")
+  t_a_material_compute                                         t_a_material_compute?     @relation(fields: [c_type], references: [c_type], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_A_MATE_RE_T_A_MATE_213")
+  t_a_material_caizhi                                          t_a_material_caizhi?      @relation(fields: [caizhi], references: [caizhi], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_A_MATE_REFERENCE_T_A_MATE")
+  t_a_material_type                                            t_a_material_type         @relation(fields: [material_type], references: [material_type], onUpdate: NoAction, map: "FK_T_A_MATE_REFERENCE_T_A_MATErtyy")
+  t_a_unit_t_a_material_unitTot_a_unit                         t_a_unit                  @relation("t_a_material_unitTot_a_unit", fields: [unit], references: [unit], onUpdate: NoAction, map: "FK_T_A_MATE_REFERENCE_T_A_UNIT")
+  t_a_cust                                                     t_a_cust?                 @relation(fields: [cust], references: [cust], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_A_MATErial0123")
+  t_a_unit_t_a_material_weight_unitTot_a_unit                  t_a_unit?                 @relation("t_a_material_weight_unitTot_a_unit", fields: [weight_unit], references: [unit], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_A_weight_UNIT_link")
+  t_a_material_price                                           t_a_material_price[]
+  t_a_material_price_temp                                      t_a_material_price_temp?
+  t_a_material_wage_price                                      t_a_material_wage_price[]
+  t_a_stock_material                                           t_a_stock_material[]
+  t_dev_bill_material                                          t_dev_bill_material[]
+  t_invalid_bill_t_invalid_bill_material_idTot_a_material      t_invalid_bill[]          @relation("t_invalid_bill_material_idTot_a_material")
+  t_invalid_bill_t_invalid_bill_left_material_idTot_a_material t_invalid_bill[]          @relation("t_invalid_bill_left_material_idTot_a_material")
+  t_material_batch                                             t_material_batch[]
+  t_purchase_detail                                            t_purchase_detail[]
+  t_purchase_price                                             t_purchase_price[]
+  t_sale_price                                                 t_sale_price[]
+  t_sales_bill_detail                                          t_sales_bill_detail[]
+  t_sales_debit_detail                                         t_sales_debit_detail[]
+  t_stock_attach_detail                                        t_stock_attach_detail[]
+  t_stock_in_detail                                            t_stock_in_detail[]
+  t_stock_material                                             t_stock_material[]
+  t_work_bill_attach_used                                      t_work_bill_attach_used[]
+}
+
+model t_a_material_caizhi {
+  caizhi       String         @id(map: "PK_T_A_MATERIAL_CAIZHI") @db.VarChar(5)
+  caizhi_name  String         @db.VarChar(20)
+  t_a_material t_a_material[]
+}
+
+model t_a_material_compute {
+  c_type       String         @id(map: "PK_T_A_MATERIAL_COMPUTE") @db.VarChar(20)
+  c_type_name  String         @db.VarChar(200)
+  memo         String?        @db.VarChar(100)
+  tag          String?        @db.VarChar(20)
+  t_a_material t_a_material[]
+}
+
+model t_a_material_price {
+  material_id  String       @db.VarChar(50)
+  year_month   String       @db.VarChar(6)
+  price        Decimal?     @db.Decimal(18, 8)
+  entry_person String       @db.VarChar(20)
+  entry_date   DateTime     @db.DateTime
+  memo         String?      @db.VarChar(200)
+  t_a_material t_a_material @relation(fields: [material_id], references: [material_id], onUpdate: NoAction, map: "FK_T_A_MADE_Row__197")
+
+  @@id([material_id, year_month], map: "PK_T_A_MATERIAL_PRICE")
+}
+
+model t_a_material_price_before_syn {
+  syn_time     DateTime @db.DateTime
+  year_month   String   @db.VarChar(6)
+  material_id  String   @db.VarChar(50)
+  before_price Decimal? @db.Decimal(18, 8)
+
+  @@id([syn_time, year_month, material_id], map: "PK_T_A_MATERIAL_PRICE_BEFORE_S")
+}
+
+model t_a_material_price_temp {
+  material_id  String       @id(map: "PK_T_A_MATERIAL_PRICE_TEMP") @db.VarChar(50)
+  price        Decimal?     @db.Decimal(18, 8)
+  t_a_material t_a_material @relation(fields: [material_id], references: [material_id], onUpdate: NoAction, map: "FK_T_A_MATE_price_import_162")
+}
+
+model t_a_material_type {
+  material_type           String              @id(map: "PK_T_A_MATERIAL_TYPE") @db.VarChar(50)
+  father                  String?             @db.VarChar(50)
+  material_type_name      String              @db.VarChar(20)
+  sort                    Int?
+  s_status                String              @db.VarChar(20)
+  stock                   String?             @db.VarChar(20)
+  t_a_material            t_a_material[]
+  t_a_stock               t_a_stock?          @relation(fields: [stock], references: [stock], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_A_MATE_STOC_158")
+  t_a_material_type       t_a_material_type?  @relation("t_a_material_typeTot_a_material_type", fields: [father], references: [material_type], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_MATE_type_slef111")
+  other_t_a_material_type t_a_material_type[] @relation("t_a_material_typeTot_a_material_type")
+}
+
+model t_a_material_wage_price {
+  material_id  String       @db.VarChar(50)
+  year_month   String       @db.VarChar(6)
+  price        Decimal      @db.Decimal(18, 6)
+  entry_person String       @db.VarChar(20)
+  entry_date   DateTime     @db.DateTime
+  memo         String?      @db.VarChar(200)
+  s_status     String       @default("未审核", map: "DF__t_a_mater__s_sta__3A379A64") @db.VarChar(20)
+  id           BigInt       @default(autoincrement())
+  t_a_material t_a_material @relation(fields: [material_id], references: [material_id], onUpdate: NoAction, map: "FK_T_A_MATE_wage_203")
+
+  @@id([material_id, year_month], map: "PK_T_A_MATERIAL_WAGE_PRICE")
+}
+
+model t_a_menu {
+  id            String          @id(map: "PK_T_A_MENU") @db.VarChar(20)
+  fk_system     String?         @db.VarChar(20)
+  menu_code     String          @db.VarChar(50)
+  menu_name     String          @db.VarChar(50)
+  menu_type     Int?            @db.TinyInt
+  menu_status   Int?            @db.TinyInt
+  sort          Int?
+  t_a_system    t_a_system?     @relation(fields: [fk_system], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_A_MENU__SYSTEM6")
+  t_a_menu_item t_a_menu_item[]
+}
+
+model t_a_menu_item {
+  id                   String                 @id(map: "PK_T_A_MENU_ITEM") @db.VarChar(20)
+  fk_menu              String?                @db.VarChar(20)
+  fk_parent_menu       String?                @db.VarChar(20)
+  fk_system            String?                @db.VarChar(20)
+  menu_code            String?                @db.VarChar(50)
+  menu_item_name       String?                @db.VarChar(50)
+  deleted              Boolean?
+  sort                 Int?
+  t_a_menu             t_a_menu?              @relation(fields: [fk_menu], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_A_MENU_REFERENCE_T_A_MENU13463")
+  t_a_menu_item        t_a_menu_item?         @relation("t_a_menu_itemTot_a_menu_item", fields: [fk_parent_menu], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_MENU_I_REFERENCE_T_MENU_I2")
+  other_t_a_menu_item  t_a_menu_item[]        @relation("t_a_menu_itemTot_a_menu_item")
+  t_a_menu_item_object t_a_menu_item_object[] @ignore
+  t_a_role_menu_item   t_a_role_menu_item[]   @ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model t_a_menu_item_object {
+  fk_system_object  String?            @db.VarChar(20)
+  fk_menu_item      String?            @db.VarChar(20)
+  sort              Int?
+  t_a_menu_item     t_a_menu_item?     @relation(fields: [fk_menu_item], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_A_MENU_REFERENCE_T_A_MENU7677")
+  t_a_system_object t_a_system_object? @relation(fields: [fk_system_object], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_A_MENU_REFERENCE_T_SYSTEM")
+
+  @@ignore
+}
+
+model t_a_my_bank {
+  my_bank        String          @id(map: "PK_T_A_MY_BANK") @db.VarChar(20)
+  bank           String          @db.VarChar(20)
+  open_bank      String          @db.VarChar(100)
+  card           String          @db.VarChar(50)
+  currency       String?         @db.VarChar(20)
+  t_a_bank_start t_a_bank_start?
+  t_a_bank       t_a_bank        @relation(fields: [bank], references: [bank], onUpdate: NoAction, map: "FK_my_A_BANK_bank")
+  t_a_currency   t_a_currency?   @relation(fields: [currency], references: [currency], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_A_MY_B_REFERENCE_T_A_CURR222")
+}
+
+model t_a_my_company {
+  id             String  @id(map: "PK_T_A_MY_COMPANY") @db.VarChar(20)
+  company_name   String? @db.VarChar(100)
+  tel            String? @db.VarChar(200)
+  fax            String? @db.VarChar(200)
+  tax_no         String? @db.VarChar(200)
+  bank_card      String? @db.VarChar(200)
+  address        String? @db.VarChar(200)
+  pur_person     String? @db.VarChar(200)
+  agreement_item String? @db.VarChar(Max)
+}
+
+model t_a_operate {
+  id             String           @id(map: "PK_T_A_OPERATE") @db.VarChar(20)
+  operate_id     String?          @db.VarChar(20)
+  system_object  String?          @db.VarChar(20)
+  operate_name   String?          @db.VarChar(20)
+  description    String?          @db.VarChar(200)
+  deleted        Boolean?
+  entrance       String?          @db.VarChar(50)
+  t_a_permission t_a_permission[]
+}
+
+model t_a_operate_email {
+  role_id        String         @db.VarChar(20)
+  permission_id  String         @db.VarChar(20)
+  t_a_role       t_a_role       @relation(fields: [role_id], references: [id], onUpdate: NoAction, map: "FK_T_A_OPER_RE_T_A_ROLE_241")
+  t_a_permission t_a_permission @relation(fields: [permission_id], references: [id], onUpdate: NoAction, map: "FK_T_A_OPR_RE_T_A_PERM_242")
+
+  @@id([role_id, permission_id], map: "PK_T_A_OPERATE_EMAIL")
+}
+
+model t_a_out_type {
+  out_type      String        @id(map: "PK_T_A_OUT_TYPE") @db.VarChar(5)
+  out_type_name String        @db.VarChar(20)
+  t_stock_out   t_stock_out[]
+}
+
+model t_a_packing {
+  packing      String  @id(map: "PK_T_A_PACKING") @db.VarChar(20)
+  packing_name String  @db.VarChar(20)
+  list_no      Int?
+  memo         String? @db.VarChar(20)
+  s_status     String? @default("有效", map: "DF_t_a_packing_s_status") @db.VarChar(20)
+}
+
+model t_a_pay_start {
+  supplier     String       @id(map: "PK_T_A_PAY_START") @db.VarChar(20)
+  amount       Decimal      @db.Decimal(18, 2)
+  memo         String?      @db.VarChar(200)
+  t_a_supplier t_a_supplier @relation(fields: [supplier], references: [supplier], onUpdate: NoAction, map: "FK_T_A_pay_SUPP_start_164")
+}
+
+model t_a_permission {
+  id                  String                @id(map: "PK_T_A_PERMISSION") @db.VarChar(20)
+  fk_system_object    String?               @db.VarChar(20)
+  fk_operate          String?               @db.VarChar(20)
+  fk_system           String?               @db.VarChar(20)
+  obj_domain          String?               @db.VarChar(50)
+  oper_entrance       String?               @db.VarChar(50)
+  default_select      Boolean?
+  t_a_operate_email   t_a_operate_email[]
+  t_a_operate         t_a_operate?          @relation(fields: [fk_operate], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_A_PERM_REFERENCE_T_A_OPER")
+  t_a_system_object   t_a_system_object?    @relation(fields: [fk_system_object], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_A_PERM_REFERENCE_T_SYSTEM")
+  t_a_role_permission t_a_role_permission[] @ignore
+}
+
+model t_a_personnel {
+  personnel                                                           String                       @id(map: "PK_T_A_PERSONNEL") @db.VarChar(20)
+  work_no                                                             String                       @db.VarChar(20)
+  user_id                                                             String?                      @db.VarChar(20)
+  user_pwd                                                            String?                      @db.VarChar(32)
+  dept                                                                String                       @db.VarChar(20)
+  name                                                                String                       @db.VarChar(20)
+  tel                                                                 String?                      @db.VarChar(20)
+  address                                                             String?                      @db.VarChar(100)
+  sex                                                                 String?                      @db.VarChar(5)
+  national_id                                                         String?                      @db.VarChar(20)
+  card                                                                String?                      @db.VarChar(50)
+  education                                                           String?                      @db.VarChar(20)
+  born_date                                                           DateTime?                    @db.DateTime
+  in_date                                                             DateTime?                    @db.DateTime
+  out_date                                                            DateTime?                    @db.DateTime
+  is_married                                                          Boolean?
+  insure_date                                                         DateTime?                    @db.DateTime
+  is_in                                                               Boolean?                     @default(true, map: "DF_t_a_personnel_is_in")
+  s_status                                                            String                       @db.VarChar(20)
+  user_status                                                         String                       @db.VarChar(20)
+  end_use_time                                                        DateTime?                    @db.DateTime
+  last_modify_man                                                     String?                      @db.VarChar(20)
+  last_modify_datetime                                                DateTime?                    @db.DateTime
+  duty                                                                String?                      @db.VarChar(50)
+  insurance                                                           String?                      @db.VarChar(50)
+  link_person                                                         String?                      @db.VarChar(50)
+  link_person_tel                                                     String?                      @db.VarChar(50)
+  p_memo                                                              String?                      @db.VarChar(200)
+  introduce_person                                                    String?                      @db.VarChar(20)
+  email                                                               String?                      @db.VarChar(50)
+  t_a_cust                                                            t_a_cust[]
+  t_a_found                                                           t_a_found[]
+  t_a_group_user                                                      t_a_group_user[]             @ignore
+  t_a_personnel                                                       t_a_personnel?               @relation("t_a_personnelTot_a_personnel", fields: [introduce_person], references: [personnel], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_A_PERS_introduce_person")
+  other_t_a_personnel                                                 t_a_personnel[]              @relation("t_a_personnelTot_a_personnel")
+  t_a_dept                                                            t_a_dept                     @relation(fields: [dept], references: [dept], onUpdate: NoAction, map: "FK_T_A_PERS_REFERENCE_T_A_DEPT")
+  t_a_stock                                                           t_a_stock[]
+  t_a_user_role                                                       t_a_user_role[]
+  t_pay_request_t_pay_request_entry_personTot_a_personnel             t_pay_request[]              @relation("t_pay_request_entry_personTot_a_personnel")
+  t_pay_request_t_pay_request_audit_personTot_a_personnel             t_pay_request[]              @relation("t_pay_request_audit_personTot_a_personnel")
+  t_purchase_t_purchase_audit_personTot_a_personnel                   t_purchase[]                 @relation("t_purchase_audit_personTot_a_personnel")
+  t_purchase_t_purchase_entry_personTot_a_personnel                   t_purchase[]                 @relation("t_purchase_entry_personTot_a_personnel")
+  t_sales_debit_t_sales_debit_check_personTot_a_personnel             t_sales_debit[]              @relation("t_sales_debit_check_personTot_a_personnel")
+  t_sales_debit_t_sales_debit_entry_personTot_a_personnel             t_sales_debit[]              @relation("t_sales_debit_entry_personTot_a_personnel")
+  t_stock_attach                                                      t_stock_attach[]
+  t_stock_in_t_stock_in_in_personTot_a_personnel                      t_stock_in[]                 @relation("t_stock_in_in_personTot_a_personnel")
+  t_stock_in_t_stock_in_entry_personTot_a_personnel                   t_stock_in[]                 @relation("t_stock_in_entry_personTot_a_personnel")
+  t_stock_out_t_stock_out_entry_personTot_a_personnel                 t_stock_out[]                @relation("t_stock_out_entry_personTot_a_personnel")
+  t_stock_out_t_stock_out_out_personTot_a_personnel                   t_stock_out[]                @relation("t_stock_out_out_personTot_a_personnel")
+  t_topic                                                             t_topic[]
+  t_topic_detail                                                      t_topic_detail[]
+  t_work_bill_t_work_bill_entry_personTot_a_personnel                 t_work_bill[]                @relation("t_work_bill_entry_personTot_a_personnel")
+  t_work_bill_t_work_bill_end_personTot_a_personnel                   t_work_bill[]                @relation("t_work_bill_end_personTot_a_personnel")
+  t_work_bill_attach_t_work_bill_attach_request_personTot_a_personnel t_work_bill_attach[]         @relation("t_work_bill_attach_request_personTot_a_personnel")
+  t_work_bill_attach_t_work_bill_attach_entry_personTot_a_personnel   t_work_bill_attach[]         @relation("t_work_bill_attach_entry_personTot_a_personnel")
+  t_work_bill_attach_comment                                          t_work_bill_attach_comment[]
+  t_work_bill_salary                                                  t_work_bill_salary[]
+}
+
+model t_a_price_log {
+  log_id       BigInt    @id(map: "PK_T_A_PRICE_LOG") @default(autoincrement())
+  material_id  String    @db.VarChar(50)
+  old_price    Decimal?  @db.Decimal(18, 8)
+  old_quantity Decimal?  @db.Decimal(18, 2)
+  purchase_id  String?   @db.VarChar(20)
+  in_quantity  Decimal?  @db.Decimal(18, 2)
+  pur_price    Decimal?  @db.Decimal(18, 8)
+  new_price    Decimal?  @db.Decimal(18, 8)
+  date_time    DateTime? @db.DateTime
+  log_type     String?   @db.VarChar(50)
+}
+
+model t_a_receive_start {
+  cust       String   @id(map: "PK_T_A_RECEIVE_START") @db.VarChar(20)
+  amount     Decimal  @db.Decimal(18, 2)
+  memo       String?  @db.VarChar(200)
+  year_month String?  @db.VarChar(6)
+  t_a_cust   t_a_cust @relation(fields: [cust], references: [cust], onUpdate: NoAction, map: "FK_T_A_receive_CUST_start_163ed")
+}
+
+model t_a_report_config {
+  id            String  @id(map: "PK_t_a_report_config") @db.VarChar(50)
+  module        String  @db.VarChar(50)
+  report_name   String  @db.VarChar(50)
+  margin_left   Int
+  margin_right  Int
+  margin_top    Int
+  margin_bottom Int
+  width         Int
+  height        Int
+  path          String  @db.VarChar(200)
+  paper         String? @db.VarChar(50)
+  memo          String? @db.VarChar(200)
+}
+
+model t_a_role {
+  id                         String                       @id(map: "PK_T_A_ROLE") @db.VarChar(20)
+  role_name                  String                       @db.VarChar(50)
+  description                String?                      @db.VarChar(200)
+  role_status                Int?                         @db.TinyInt
+  dept                       String                       @db.VarChar(20)
+  t_a_comment_permission     t_a_comment_permission[]
+  t_a_operate_email          t_a_operate_email[]
+  t_a_dept                   t_a_dept                     @relation(fields: [dept], references: [dept], onUpdate: NoAction, map: "FK__DEPT3")
+  t_a_role_menu_item         t_a_role_menu_item[]         @ignore
+  t_a_role_permission        t_a_role_permission[]        @ignore
+  t_a_user_role              t_a_user_role[]
+  t_work_bill_attach_comment t_work_bill_attach_comment[]
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model t_a_role_menu_item {
+  fk_role       String?        @db.VarChar(20)
+  fk_menu_item  String?        @db.VarChar(20)
+  t_a_menu_item t_a_menu_item? @relation(fields: [fk_menu_item], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_A_ROLE_REFERENCE_T_A_MENU")
+  t_a_role      t_a_role?      @relation(fields: [fk_role], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_A_ROLE_REFERENCE_T_A_ROLE34612")
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model t_a_role_permission {
+  fk_role        String?         @db.VarChar(20)
+  fk_permission  String?         @db.VarChar(20)
+  t_a_permission t_a_permission? @relation(fields: [fk_permission], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_A_ROLE_REFERENCE_T_A_PERM")
+  t_a_role       t_a_role?       @relation(fields: [fk_role], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_A_ROLE_REFERENCE_T_A_ROLE346")
+
+  @@ignore
+}
+
+model t_a_s_code {
+  s_code                 String           @id(map: "PK_T_A_S_CODE") @db.VarChar(50)
+  supplier               String?          @db.VarChar(20)
+  batch_no               String?          @db.VarChar(20)
+  man_address            String?          @db.VarChar(20)
+  batch_id               String           @db.VarChar(20)
+  s_status               String?          @default("有效", map: "DF_t_a_s_code_s_status") @db.VarChar(20)
+  weight                 Decimal?         @db.Decimal(18, 2)
+  output_rate            Decimal?         @db.Decimal(18, 8)
+  product_weight         Decimal?         @db.Decimal(18, 2)
+  create_time            DateTime?        @default(now(), map: "DF_t_a_s_code_create_time") @db.DateTime
+  weight_unit            String?          @db.VarChar(5)
+  product_price          Decimal?         @db.Decimal(18, 8)
+  contract_amount        Decimal?         @db.Decimal(18, 2)
+  purchase_amount        Decimal?         @db.Decimal(18, 2)
+  tariff_amount          Decimal?         @db.Decimal(18, 2)
+  purchase_transport_fee Decimal?         @db.Decimal(18, 2)
+  purchase_fee           Decimal?         @db.Decimal(18, 2)
+  sum_purchase_amount    Decimal?         @db.Decimal(18, 2)
+  sale_transport_fee     Decimal?         @db.Decimal(18, 2)
+  sale_pack_fee          Decimal?         @db.Decimal(18, 2)
+  sum_sale_amount        Decimal?         @db.Decimal(18, 2)
+  profit                 Decimal?         @db.Decimal(18, 2)
+  end_time               DateTime?        @db.DateTime
+  end_person             String?          @db.VarChar(20)
+  material_sort          String?          @default("虫卵", map: "DF__t_a_s_cod__mater__31233176") @db.VarChar(20)
+  t_purchase_batch       t_purchase_batch @relation(fields: [batch_id], references: [batch_id], onUpdate: NoAction, map: "FK_T_A_S_CO_R_PURCHA_39")
+  t_a_batch_no           t_a_batch_no?    @relation(fields: [batch_no], references: [batch_no], onDelete: NoAction, onUpdate: NoAction, map: "FK_TABLE_35_REFERBATC_36")
+  t_a_man_address        t_a_man_address? @relation(fields: [man_address], references: [man_address], onDelete: NoAction, onUpdate: NoAction, map: "FK_TABLE_35_REFERENCE_T_A_MAN__35")
+  t_a_supplier           t_a_supplier?    @relation(fields: [supplier], references: [supplier], onDelete: NoAction, onUpdate: NoAction, map: "FK_TABLE_35_REFET_A_SUPP_38")
+  t_purchase_fee         t_purchase_fee[]
+}
+
+model t_a_shared_fee {
+  year_month     String   @db.VarChar(6)
+  dept           String   @db.VarChar(20)
+  electric_fee   Decimal? @db.Decimal(18, 2)
+  water_fee      Decimal? @db.Decimal(18, 2)
+  baoxiao_fee    Decimal? @db.Decimal(18, 2)
+  model_fee      Decimal? @db.Decimal(18, 2)
+  other_fee      Decimal? @db.Decimal(18, 2)
+  entry_person   String   @db.VarChar(20)
+  entry_date     DateTime @db.DateTime
+  processing_fee Decimal? @db.Decimal(18, 2)
+  fee_type       String   @db.VarChar(5)
+  fee_amount     Decimal? @db.Decimal(18, 2)
+
+  @@id([year_month, dept, fee_type], map: "PK_t_a_shared_fee")
+}
+
+model t_a_stock {
+  stock              String               @id(map: "PK_T_A_STOCK") @db.VarChar(20)
+  stock_admin        String?              @db.VarChar(20)
+  stock_type         String               @db.VarChar(5)
+  stock_name         String               @db.VarChar(50)
+  order              Int?
+  t_a_cust           t_a_cust[]
+  t_a_material_type  t_a_material_type[]
+  t_a_personnel      t_a_personnel?       @relation(fields: [stock_admin], references: [personnel], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_A_STOC_REFERENCE_T_A_PERS")
+  t_a_stock_type     t_a_stock_type       @relation(fields: [stock_type], references: [stock_type], onUpdate: NoAction, map: "FK_T_A_STOC_REFERENCE_T_A_STOC")
+  t_a_stock_material t_a_stock_material[]
+  t_stock_attach     t_stock_attach[]
+  t_stock_in         t_stock_in[]
+  t_stock_material   t_stock_material[]
+  t_stock_out        t_stock_out[]
+}
+
+model t_a_stock_material {
+  stock        String                   @db.VarChar(20)
+  material_id  String                   @db.VarChar(50)
+  quantity     Decimal                  @db.Decimal(18, 2)
+  time_stamp   Unsupported("timestamp")
+  t_a_material t_a_material             @relation(fields: [material_id], references: [material_id], onUpdate: NoAction, map: "FK_MATERIAL_5")
+  t_a_stock    t_a_stock                @relation(fields: [stock], references: [stock], onUpdate: NoAction, map: "FK_STOC3")
+
+  @@id([stock, material_id], map: "PK_T_A_STOCK_MATERIAL")
+}
+
+model t_a_stock_type {
+  stock_type      String      @id(map: "PK_T_A_STOCK_TYPE") @db.VarChar(5)
+  stock_type_name String      @db.VarChar(20)
+  t_a_stock       t_a_stock[]
+}
+
+model t_a_supplier {
+  supplier                                                                               String                          @id(map: "PK_T_A_SUPPLIER") @db.VarChar(20)
+  supplier_type                                                                          String                          @db.VarChar(20)
+  supplier_name                                                                          String                          @db.VarChar(50)
+  address                                                                                String?                         @db.VarChar(200)
+  fax                                                                                    String?                         @db.VarChar(100)
+  tel                                                                                    String?                         @db.VarChar(100)
+  email                                                                                  String?                         @db.VarChar(100)
+  link_person                                                                            String?                         @db.VarChar(100)
+  pinlv                                                                                  String?                         @db.VarChar(20)
+  pay_type                                                                               String?                         @db.VarChar(20)
+  memo                                                                                   String?                         @db.VarChar(500)
+  open_bank                                                                              String?                         @db.VarChar(200)
+  card_no                                                                                String?                         @db.VarChar(200)
+  s_status                                                                               String?                         @default("有效", map: "DF_t_a_supplier_s_status") @db.VarChar(20)
+  supplier_pay_days                                                                      Int?
+  open_bank_no                                                                           String?                         @db.VarChar(20)
+  list_no                                                                                Int?
+  t_a_material                                                                           t_a_material[]
+  t_a_pay_start                                                                          t_a_pay_start?
+  t_a_s_code                                                                             t_a_s_code[]
+  t_a_supplier_type                                                                      t_a_supplier_type               @relation(fields: [supplier_type], references: [supplier_type], onUpdate: NoAction, map: "FK_T_A_SUPP_REFERENCE_T_A_SUPP3453")
+  t_a_supplier_bank                                                                      t_a_supplier_bank[]
+  t_pay_bill                                                                             t_pay_bill[]
+  t_purchase_batch                                                                       t_purchase_batch[]
+  t_purchase_supplier_alter_log_t_purchase_supplier_alter_log_old_supplierTot_a_supplier t_purchase_supplier_alter_log[] @relation("t_purchase_supplier_alter_log_old_supplierTot_a_supplier")
+  t_purchase_supplier_alter_log_t_purchase_supplier_alter_log_new_supplierTot_a_supplier t_purchase_supplier_alter_log[] @relation("t_purchase_supplier_alter_log_new_supplierTot_a_supplier")
+  t_stock_in_detail                                                                      t_stock_in_detail[]
+}
+
+model t_a_supplier_bank {
+  card         String       @db.VarChar(50)
+  supplier     String       @db.VarChar(20)
+  bank         String?      @db.VarChar(20)
+  bank_name    String       @db.VarChar(50)
+  is_basic     Boolean
+  t_a_bank     t_a_bank?    @relation(fields: [bank], references: [bank], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_A_SUPP_REFERENCE_T_A_BANK")
+  t_a_supplier t_a_supplier @relation(fields: [supplier], references: [supplier], onUpdate: NoAction, map: "FK_T_A_SUPP_REFERENCE_T_A_SUPP")
+
+  @@id([card, supplier], map: "PK_T_A_SUPPLIER_BANK")
+}
+
+model t_a_supplier_type {
+  supplier_type      String         @id(map: "PK_T_A_SUPPLIER_TYPE") @db.VarChar(20)
+  father             String?        @db.VarChar(20)
+  supplier_type_name String         @db.VarChar(100)
+  s_status           String         @db.VarChar(20)
+  t_a_supplier       t_a_supplier[]
+}
+
+model t_a_system {
+  id             String     @id(map: "PK_T_A_SYSTEM") @db.VarChar(20)
+  system_name    String?    @db.VarChar(20)
+  description    String?    @db.VarChar(1000)
+  architecture   String?    @db.VarChar(20)
+  is_has_menuobj Boolean?
+  t_a_menu       t_a_menu[]
+}
+
+model t_a_system_object {
+  id                             String                          @id(map: "PK_T_SYSTEM_OBJECT") @db.VarChar(20)
+  fk_system                      String?                         @db.VarChar(20)
+  execute_type                   String?                         @db.VarChar(20)
+  system_object_id               String?                         @db.VarChar(20)
+  system_object_name             String?                         @db.VarChar(200)
+  description                    String?                         @db.VarChar(200)
+  system_object_status           Int?                            @db.TinyInt
+  entrance                       String?                         @db.VarChar(50)
+  domain                         String?                         @db.VarChar(50)
+  imageindex                     Int?
+  params                         String?                         @db.VarChar(200)
+  visible_in_menu                Boolean?
+  source_table                   String?                         @db.VarChar(50)
+  key_field                      String?                         @db.VarChar(50)
+  status_field                   String?                         @default("s_status", map: "DF_t_a_system_object_status_field") @db.VarChar(50)
+  t_a_menu_item_object           t_a_menu_item_object[]          @ignore
+  t_a_permission                 t_a_permission[]
+  t_a_system_object_execute_type t_a_system_object_execute_type? @relation(fields: [execute_type], references: [execute_type], onDelete: NoAction, onUpdate: NoAction, map: "FK_excute_type2")
+}
+
+model t_a_system_object_execute_type {
+  execute_type      String              @id(map: "PK_T_A_SYSTEM_OBJECT_EXECUTE_T") @db.VarChar(20)
+  execute_name      String?             @db.VarChar(20)
+  t_a_system_object t_a_system_object[]
+}
+
+model t_a_sz_category {
+  sz_category      String      @id(map: "PK_T_A_SZ_CATEGORY") @db.VarChar(5)
+  sz_category_name String      @db.VarChar(20)
+  t_a_found        t_a_found[]
+}
+
+model t_a_sz_type {
+  sz_type      String      @id(map: "PK_T_A_SZ_TYPE") @db.VarChar(5)
+  sz_type_name String      @db.VarChar(20)
+  t_a_found    t_a_found[]
+}
+
+model t_a_tech {
+  tech              String              @id(map: "PK_T_A_TECH") @db.VarChar(20)
+  tech_name         String              @db.VarChar(20)
+  list_no           Int?
+  memo              String?             @db.VarChar(20)
+  s_status          String?             @db.VarChar(20)
+  t_stock_in_detail t_stock_in_detail[]
+}
+
+model t_a_temp {
+  id    String    @id(map: "PK_t_a_temp") @db.NChar(10)
+  stamp DateTime? @db.DateTime
+}
+
+model t_a_unit {
+  unit                                                       String               @id(map: "PK_T_A_UNIT") @db.VarChar(5)
+  unit_name                                                  String               @db.VarChar(20)
+  unit_type                                                  String?              @db.VarChar(20)
+  list_no                                                    Int?
+  t_a_bom                                                    t_a_bom[]
+  t_a_bom_material                                           t_a_bom_material[]
+  t_a_material_t_a_material_unitTot_a_unit                   t_a_material[]       @relation("t_a_material_unitTot_a_unit")
+  t_a_material_t_a_material_weight_unitTot_a_unit            t_a_material[]       @relation("t_a_material_weight_unitTot_a_unit")
+  t_f_cust_receive_t_f_cust_receive_pack_unitTot_a_unit      t_f_cust_receive[]   @relation("t_f_cust_receive_pack_unitTot_a_unit")
+  t_f_cust_receive_t_f_cust_receive_unitTot_a_unit           t_f_cust_receive[]   @relation("t_f_cust_receive_unitTot_a_unit")
+  t_f_cust_receive_t_f_cust_receive_price_unitTot_a_unit     t_f_cust_receive[]   @relation("t_f_cust_receive_price_unitTot_a_unit")
+  t_invalid_bill                                             t_invalid_bill[]
+  t_stock_in_detail                                          t_stock_in_detail[]
+  t_stock_out_detail_t_stock_out_detail_unitTot_a_unit       t_stock_out_detail[] @relation("t_stock_out_detail_unitTot_a_unit")
+  t_stock_out_detail_t_stock_out_detail_price_unitTot_a_unit t_stock_out_detail[] @relation("t_stock_out_detail_price_unitTot_a_unit")
+}
+
+model t_a_user_role {
+  fk_user       String        @db.VarChar(20)
+  fk_role       String        @db.VarChar(20)
+  t_a_personnel t_a_personnel @relation(fields: [fk_user], references: [personnel], onUpdate: NoAction, map: "FK_T_A_USER_REFERENCE_T_A_PERS")
+  t_a_role      t_a_role      @relation(fields: [fk_role], references: [id], onUpdate: NoAction, map: "FK_T_A_USER_REFERENCE_T_A_ROLE")
+
+  @@id([fk_user, fk_role], map: "PK_t_a_user_role")
+}
+
+model t_a_version {
+  ver        String  @id(sort: Desc, map: "PK_T_A_version") @db.VarChar(50)
+  ver_name   String  @db.VarChar(50)
+  memo       String? @db.VarChar(500)
+  is_control Boolean
+}
+
+model t_a_work_bill_type {
+  work_bill_type          String                    @id(map: "PK_T_A_WORK_BILL_TYPE") @db.VarChar(20)
+  work_bill_type_name     String                    @db.VarChar(50)
+  wage_rate               Decimal?                  @db.Decimal(18, 2)
+  is_left_weight          Boolean                   @default(false, map: "DF_t_a_work_bill_type_is_left_weight")
+  t_a_bom                 t_a_bom[]
+  t_a_dept_work_bill_type t_a_dept_work_bill_type[]
+  t_dev_bill              t_dev_bill[]
+  t_work_bill             t_work_bill[]
+}
+
+model t_a_zhangtao {
+  id       String  @id(map: "PK_T_A_ZHANGTAO") @db.VarChar(50)
+  name     String? @db.VarChar(200)
+  memo     String? @db.VarChar(500)
+  company  String? @db.VarChar(100)
+  person   String? @db.VarChar(20)
+  tel      String? @db.VarChar(20)
+  duty_no  String? @db.VarChar(50)
+  address  String? @db.VarChar(200)
+  zip_code String? @db.VarChar(20)
+  email    String? @db.VarChar(50)
+  conn     String  @db.VarChar(20)
+}
+
+model t_dev_bill {
+  dev_bill            String                @id(map: "PK_T_DEV_BILL") @db.VarChar(20)
+  equipment           String                @db.VarChar(50)
+  fee4                Decimal?              @default(0, map: "DF_t_dev_bill_fee4") @db.Decimal(18, 2)
+  quantity            Decimal               @db.Decimal(18, 2)
+  amount              Decimal               @default(0.00, map: "DF__t_dev_bil__amoun__664B26CC") @db.Decimal(18, 2)
+  entry_person        String                @db.VarChar(20)
+  date_time           DateTime              @db.DateTime
+  end_person          String?               @db.VarChar(20)
+  end_time            DateTime?             @db.DateTime
+  request_time        DateTime?             @db.DateTime
+  product_name        String                @db.VarChar(50)
+  memo                String?               @db.VarChar(200)
+  reason              String?               @db.VarChar(200)
+  cust                String?               @db.VarChar(20)
+  work_bill_type      String?               @db.VarChar(20)
+  unit_weight         Decimal?              @db.Decimal(18, 4)
+  product_in          Decimal?              @db.Decimal(18, 2)
+  knife_fee           Decimal?              @db.Decimal(18, 2)
+  model_fee           Decimal?              @db.Decimal(18, 2)
+  schedule_work_fee   Decimal?              @db.Decimal(18, 2)
+  work_fee            Decimal?              @db.Decimal(18, 2)
+  reuse_amount        Decimal?              @db.Decimal(18, 2)
+  reuse_unit_price    Decimal?              @db.Decimal(18, 8)
+  reuse_quantity      Decimal?              @db.Decimal(18, 2)
+  send_date           DateTime?             @db.DateTime
+  s_status            String?               @db.VarChar(20)
+  t_a_cust            t_a_cust?             @relation(fields: [cust], references: [cust], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_DEV_BI_CUST_170")
+  t_a_work_bill_type  t_a_work_bill_type?   @relation(fields: [work_bill_type], references: [work_bill_type], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_DEV_work_bill_type_184")
+  t_dev_bill_material t_dev_bill_material[]
+  t_stock_in          t_stock_in[]
+  t_stock_out         t_stock_out[]
+}
+
+model t_dev_bill_material {
+  id                BigInt       @default(autoincrement())
+  dev_bill          String       @db.VarChar(20)
+  material_id       String       @db.VarChar(50)
+  material_name     String       @db.VarChar(50)
+  spec              String?      @db.VarChar(100)
+  quantity          Decimal      @default(0.00, map: "DF__t_dev_bil__quant__673F4B05") @db.Decimal(18, 2)
+  schedule_quantity Decimal?     @db.Decimal(18, 2)
+  unit_price        Decimal?     @db.Decimal(18, 8)
+  amount            Decimal?     @db.Decimal(18, 2)
+  memo              String?      @db.VarChar(200)
+  unit              String       @db.VarChar(5)
+  t_dev_bill        t_dev_bill   @relation(fields: [dev_bill], references: [dev_bill], onUpdate: NoAction, map: "FK_T_DEV_BI_Detail_183")
+  t_a_material      t_a_material @relation(fields: [material_id], references: [material_id], onUpdate: NoAction, map: "FK_T_DEV_BI_material_185")
+
+  @@id([dev_bill, material_id], map: "PK_T_DEV_BILL_MATERIAL")
+}
+
+model t_e_command_parameter {
+  dataview                                                     String                   @db.VarChar(20)
+  parameter                                                    String                   @db.VarChar(50)
+  parameter_name                                               String                   @db.VarChar(50)
+  data_type                                                    String                   @db.VarChar(5)
+  edit_width                                                   Int                      @default(0, map: "DF__t_e_comma__edit___1920BF5C")
+  long                                                         Int                      @default(0, map: "DF__t_e_comman__long__1A14E395")
+  data_source                                                  String?                  @db.VarChar(20)
+  source_column                                                String?                  @db.VarChar(255)
+  is_null                                                      Boolean                  @default(false, map: "DF__t_e_comma__is_nu__1B0907CE")
+  is_select_parameter                                          Boolean                  @default(false, map: "DF__t_e_comma__is_se__1BFD2C07")
+  is_update_parameter                                          Boolean                  @default(false, map: "DF__t_e_comma__is_up__1CF15040")
+  is_insert_parameter                                          Boolean                  @default(false, map: "DF__t_e_comma__is_in__1DE57479")
+  is_delete_parameter                                          Boolean                  @default(false, map: "DF__t_e_comma__is_de__1ED998B2")
+  is_macro                                                     Boolean                  @default(false, map: "DF__t_e_comma__is_ma__1FCDBCEB")
+  is_user_select                                               Boolean                  @default(false, map: "DF_t_e_command_parameter_is_user_select")
+  is_where_parameter                                           Boolean                  @default(false, map: "DF_t_e_command_parameter_is_where_parameter")
+  param_default_value                                          String?                  @db.VarChar(500)
+  list_no                                                      Int?                     @default(0, map: "DF_t_e_command_parameter_list_no")
+  version                                                      Unsupported("timestamp")
+  t_e_data_type                                                t_e_data_type            @relation(fields: [data_type], references: [data_type], onUpdate: NoAction, map: "FK_T_E_COMM_REFERENCE_T_E_DATA")
+  t_e_dataview_t_e_command_parameter_data_sourceTot_e_dataview t_e_dataview?            @relation("t_e_command_parameter_data_sourceTot_e_dataview", fields: [data_source], references: [dataview], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_E_COMM_REFERENCE_T_E_DATA1")
+  t_e_dataview_t_e_command_parameter_dataviewTot_e_dataview    t_e_dataview             @relation("t_e_command_parameter_dataviewTot_e_dataview", fields: [dataview], references: [dataview], onUpdate: NoAction, map: "FK_T_SYS_CO_REFERENCE_T_SYS_DA2")
+
+  @@id([dataview, parameter], map: "PK_T_E_COMMAND_PARAMETER")
+}
+
+model t_e_counter {
+  object        String     @id(clustered: false, map: "PK_T_SYS_COUNTER") @db.VarChar(5)
+  object_prefix String     @db.VarChar(5)
+  counter       Int
+  list_length   Int
+  t_e_object    t_e_object @relation(fields: [object], references: [object], onUpdate: NoAction, map: "FK_T_SYS_CO_REFERENCE_T_E_OBJE")
+}
+
+model t_e_data_type {
+  data_type             String                  @id(map: "PK_T_E_DATA_TYPE") @db.VarChar(5)
+  sql_db_type           String                  @db.VarChar(255)
+  sql_type              String?                 @db.VarChar(255)
+  t_e_command_parameter t_e_command_parameter[]
+  t_e_dataview_column   t_e_dataview_column[]
+}
+
+model t_e_dataview {
+  dataview                                                              String                   @id(map: "PK_T_E_DATAVIEW") @db.VarChar(20)
+  item                                                                  String                   @db.VarChar(5)
+  dataview_directory                                                    String                   @db.VarChar(20)
+  connection                                                            String                   @db.VarChar(5)
+  cube                                                                  String?                  @db.VarChar(50)
+  dataview_name                                                         String                   @db.VarChar(100)
+  select_command                                                        String?                  @db.VarChar(Max)
+  update_command                                                        String?                  @db.VarChar(Max)
+  insert_command                                                        String?                  @db.VarChar(Max)
+  delete_command                                                        String?                  @db.VarChar(Max)
+  version                                                               Unsupported("timestamp")
+  t_e_command_parameter_t_e_command_parameter_data_sourceTot_e_dataview t_e_command_parameter[]  @relation("t_e_command_parameter_data_sourceTot_e_dataview")
+  t_e_command_parameter_t_e_command_parameter_dataviewTot_e_dataview    t_e_command_parameter[]  @relation("t_e_command_parameter_dataviewTot_e_dataview")
+  t_e_datebase_connection                                               t_e_datebase_connection  @relation(fields: [connection], references: [connection], onUpdate: NoAction, map: "FK_T_E_DATA_REFERENCE_T_E_DATE")
+  t_e_dataview_directory                                                t_e_dataview_directory   @relation(fields: [dataview_directory], references: [dataview_directory], onUpdate: NoAction, map: "FK_T_SYS_DA_REFERENCE_T_SYS_DA2")
+  t_e_item                                                              t_e_item                 @relation(fields: [item], references: [item], onUpdate: NoAction, map: "FK_T_SYS_DA_REFERENCE_T_SYS_IT2")
+  t_e_dataview_column                                                   t_e_dataview_column[]
+}
+
+model t_e_dataview_column {
+  dataview               String                   @db.VarChar(20)
+  dataview_column        String                   @db.VarChar(255)
+  dataview_column_name   String?                  @db.VarChar(200)
+  data_type              String?                  @db.VarChar(5)
+  edit_width             Int?
+  long                   Int?                     @default(0, map: "DF__t_e_datavi__long__2A4B4B5E")
+  is_null                Boolean                  @default(false, map: "DF__t_e_datav__is_nu__2B3F6F97")
+  is_hidden              Boolean                  @default(false, map: "DF_t_e_dataview_column_is_hidden")
+  is_sum                 Boolean?                 @default(false, map: "DF_t_e_dataview_column_is_sum")
+  list_no                Int?
+  version                Unsupported("timestamp")
+  column_source_id       String?                  @db.VarChar(20)
+  column_source_name     String?                  @db.VarChar(255)
+  show_type              String?                  @db.VarChar(5)
+  column_source_dataview String?                  @db.VarChar(50)
+  column_expression      String?                  @db.VarChar(1000)
+  column_source_table    String?                  @db.VarChar(50)
+  is_edit                Boolean                  @default(false, map: "DF_t_e_dataview_column_is_edit_1")
+  function_name          String?                  @db.VarChar(50)
+  is_Child_name          Boolean?                 @default(false, map: "DF_t_e_dataview_column_is_Child_name_1")
+  Father_Title_name      String?                  @db.VarChar(50)
+  Child_Number           Int?                     @default(0, map: "DF_t_e_dataview_column_Child_Number_1")
+  is_fixed               Boolean?
+  is_merge               Boolean?                 @default(false, map: "DF_t_e_dataview_column_is_merge")
+  t_e_show_type          t_e_show_type?           @relation(fields: [show_type], references: [show_type], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_E_DATA_REFERENCE_T_E_SHOW")
+  t_e_dataview           t_e_dataview             @relation(fields: [dataview], references: [dataview], onUpdate: NoAction, map: "FK_T_SYS_DA_REFERENCE_T_SYS_DA4")
+  t_e_data_type          t_e_data_type?           @relation(fields: [data_type], references: [data_type], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_SYS_DA_REFERENCE_T_SYS_DA5")
+
+  @@id([dataview, dataview_column], map: "PK_T_E_DATAVIEW_COLUMN")
+}
+
+model t_e_dataview_directory {
+  dataview_directory           String                   @id(map: "PK_T_E_DATAVIEW_DIRECTORY") @db.VarChar(20)
+  dataview_directory_name      String                   @db.VarChar(20)
+  item                         String                   @db.VarChar(5)
+  superior_dataview_directory  String?                  @db.VarChar(20)
+  t_e_dataview                 t_e_dataview[]
+  t_e_dataview_directory       t_e_dataview_directory?  @relation("t_e_dataview_directoryTot_e_dataview_directory", fields: [superior_dataview_directory], references: [dataview_directory], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_E_DATA_REFERENCE_T_E_DATA")
+  other_t_e_dataview_directory t_e_dataview_directory[] @relation("t_e_dataview_directoryTot_e_dataview_directory")
+  t_e_item                     t_e_item                 @relation(fields: [item], references: [item], onUpdate: NoAction, map: "FK_T_E_DATA_REFERENCE_T_E_ITEM")
+}
+
+model t_e_datebase_connection {
+  connection               String         @id(map: "PK_T_E_DATEBASE_CONNECTION") @db.VarChar(5)
+  connection_name          String         @db.VarChar(20)
+  connection_string        String         @db.VarChar(500)
+  object_context           String         @db.VarChar(255)
+  object_connection_string String?        @db.VarChar(500)
+  t_e_dataview             t_e_dataview[]
+}
+
+model t_e_item {
+  item                   String                   @id(map: "PK_T_E_ITEM") @db.VarChar(5)
+  item_name              String                   @db.VarChar(50)
+  t_e_dataview           t_e_dataview[]
+  t_e_dataview_directory t_e_dataview_directory[]
+}
+
+model t_e_object {
+  object      String       @id(clustered: false, map: "PK_T_E_OBJECT") @db.VarChar(5)
+  object_name String       @db.VarChar(200)
+  list_no     Int
+  table_name  String?      @db.VarChar(50)
+  time_column String?      @db.VarChar(50)
+  key_column  String?      @db.VarChar(50)
+  t_e_counter t_e_counter?
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model t_e_object_status {
+  object           String @db.VarChar(5)
+  operation_status Int    @db.TinyInt
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model t_e_operation_status {
+  operation_status      Int    @db.TinyInt
+  operation_status_name String @db.VarChar(20)
+  list_no               Int
+
+  @@ignore
+}
+
+model t_e_ordinal {
+  ordinal Int @id(map: "PK_t_e_ordinal")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model t_e_py_ordinal {
+  ordinal String? @db.NChar(1)
+
+  @@ignore
+}
+
+model t_e_show_type {
+  show_type           String                @id(map: "PK_T_E_SHOW_TYPE") @db.VarChar(5)
+  show_type_name      String?               @db.VarChar(50)
+  t_e_dataview_column t_e_dataview_column[]
+}
+
+model t_e_system_config {
+  id          String  @id(map: "PK_T_E_SYSTEM_CONFIG") @db.VarChar(32)
+  item_name   String  @db.VarChar(50)
+  item_value  String? @db.VarChar(50)
+  description String? @db.VarChar(50)
+  data_type   String? @db.VarChar(50)
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model t_e_system_log {
+  id         String    @db.VarChar(32)
+  log_type   String    @db.VarChar(50)
+  log_time   DateTime? @db.DateTime
+  log_module String?   @db.VarChar(50)
+  log_detail String?   @db.VarChar(500)
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model t_e_user_log {
+  id         String?   @db.VarChar(32)
+  user_id    String    @db.VarChar(20)
+  user_name  String    @db.VarChar(50)
+  logon_time DateTime? @db.DateTime
+  IP         String?   @db.VarChar(50)
+  MAC        String?   @db.VarChar(50)
+  SYSTEM     String?   @db.VarChar(20)
+
+  @@ignore
+}
+
+model t_f_balance {
+  fyear             Int
+  fperiod           Int
+  code              String   @db.VarChar(20)
+  year_month        String?  @db.VarChar(6)
+  direction         String?  @db.VarChar(5)
+  abstract          String?  @db.VarChar(50)
+  for_begin_balance Decimal? @db.Decimal(18, 2)
+  for_j_amount      Decimal? @db.Decimal(18, 2)
+  for_d_amount      Decimal? @db.Decimal(18, 2)
+  for_ytd_j_amount  Decimal? @db.Decimal(18, 2)
+  for_ytd_d_amount  Decimal? @db.Decimal(18, 2)
+  for_end_balance   Decimal? @db.Decimal(18, 2)
+  begin_balance     Decimal? @db.Decimal(18, 2)
+  j_amount          Decimal? @db.Decimal(18, 2)
+  d_amount          Decimal? @db.Decimal(18, 2)
+  ytd_j_amount      Decimal? @db.Decimal(18, 2)
+  ytd_d_amount      Decimal? @db.Decimal(18, 2)
+  end_balance       Decimal? @db.Decimal(18, 2)
+  t_f_code          t_f_code @relation(fields: [code], references: [code], onUpdate: NoAction, map: "FK_T_F_CODE_REFET_F_CODE_277")
+
+  @@id([fyear, fperiod, code], map: "PK_T_F_BALANCE")
+}
+
+model t_f_code {
+  code               String               @id(map: "PK_T_F_CODE") @db.VarChar(20)
+  father_code        String?              @db.VarChar(20)
+  dept               String?              @db.VarChar(20)
+  code_name          String?              @db.VarChar(50)
+  code_full_name     String?              @db.VarChar(100)
+  grade              Int?
+  direction          String?              @db.VarChar(5)
+  code_type          String?              @db.VarChar(20)
+  code_type_eng      String?              @db.VarChar(20)
+  is_detail          Int?                 @default(1, map: "DF_t_f_code_is_detail")
+  is_cash            Int?
+  cash_sign          Int?
+  s_status           String?              @db.VarChar(20)
+  t_a_equipment      t_a_equipment[]
+  t_f_balance        t_f_balance[]
+  t_a_dept           t_a_dept?            @relation(fields: [dept], references: [dept], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_F_CO_T_A_DEPT_271")
+  t_f_code           t_f_code?            @relation("t_f_codeTot_f_code", fields: [father_code], references: [code], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_F_COT_F_CODE_270")
+  other_t_f_code     t_f_code[]           @relation("t_f_codeTot_f_code")
+  t_f_code_start     t_f_code_start?
+  t_f_voucher_detail t_f_voucher_detail[]
+}
+
+model t_f_code_start {
+  code               String   @id(map: "PK_T_F_CODE_START") @db.VarChar(20)
+  code_name          String?  @db.VarChar(50)
+  direction          String?  @db.VarChar(5)
+  fyear              Int?
+  year_begin_amount  Decimal? @db.Decimal(18, 2)
+  ytd_j_amount       Decimal? @db.Decimal(18, 2)
+  ytd_d_amount       Decimal? @db.Decimal(18, 2)
+  begin_amount       Decimal? @db.Decimal(18, 2)
+  profit_loss_amount Decimal? @db.Decimal(18, 2)
+  t_f_code           t_f_code @relation(fields: [code], references: [code], onUpdate: NoAction, map: "FK_T_F_CODE_RF_CODE_278")
+}
+
+model t_f_cust_receive {
+  receive_id                                     String    @id(map: "PK_T_F_CUST_ACCOUNT_RECEIVABLE") @db.VarChar(20)
+  date_time                                      DateTime? @db.DateTime
+  material_name                                  String?   @db.VarChar(100)
+  pack_quantity                                  Decimal?  @db.Decimal(18, 2)
+  pack_unit                                      String?   @db.VarChar(5)
+  pack_spec                                      Decimal?  @db.Decimal(18, 2)
+  quantity                                       Decimal?  @db.Decimal(18, 2)
+  unit                                           String?   @db.VarChar(5)
+  unit_price                                     Decimal?  @default(0, map: "DF_t_f_cust_receive_unit_price") @db.Decimal(18, 6)
+  price_unit                                     String?   @db.VarChar(5)
+  account                                        Decimal?  @default(0, map: "DF_t_f_cust_receive_account") @db.Decimal(18, 2)
+  received_account                               Decimal?  @default(0, map: "DF_t_f_cust_receive_received_account") @db.Decimal(18, 2)
+  left_account                                   Decimal?  @default(0, map: "DF_t_f_cust_receive_left_account") @db.Decimal(18, 2)
+  memo                                           String?   @db.VarChar(200)
+  cust                                           String?   @db.VarChar(20)
+  entry_person                                   String    @db.VarChar(20)
+  s_status                                       String?   @default("有效", map: "DF_t_f_cust_receive_s_status") @db.VarChar(10)
+  last_left_account                              Decimal?  @default(0, map: "DF_t_f_cust_receive_last_left_account") @db.Decimal(18, 2)
+  company                                        String?   @db.VarChar(50)
+  total_left_amount                              Decimal?  @default(0.00, map: "DF__t_f_cust___total__321755AF") @db.Decimal(18, 2)
+  t_a_unit_t_f_cust_receive_pack_unitTot_a_unit  t_a_unit? @relation("t_f_cust_receive_pack_unitTot_a_unit", fields: [pack_unit], references: [unit], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_F_CA_UNITe_265")
+  t_a_unit_t_f_cust_receive_unitTot_a_unit       t_a_unit? @relation("t_f_cust_receive_unitTot_a_unit", fields: [unit], references: [unit], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_F_CU_UNENC_264")
+  t_a_unit_t_f_cust_receive_price_unitTot_a_unit t_a_unit? @relation("t_f_cust_receive_price_unitTot_a_unit", fields: [price_unit], references: [unit], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_F_CUE_T_A_UNIT_266")
+  t_a_cust                                       t_a_cust? @relation(fields: [cust], references: [cust], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_F_CUST_REF_A_CUST_267")
+}
+
+model t_f_period {
+  fyear          Int
+  fperiod        Int
+  fmonth         String?   @db.VarChar(2)
+  fyear_month    String?   @db.VarChar(6)
+  start_date     DateTime? @db.Date
+  end_date       DateTime? @db.Date
+  s_status       String?   @db.VarChar(20)
+  balance_time   DateTime? @db.DateTime
+  is_balance     Int?      @default(0, map: "DF_t_f_period_is_balance")
+  balance_person String?   @db.VarChar(20)
+  is_start       Int?      @default(0, map: "DF_t_f_period_is_start")
+
+  @@id([fyear, fperiod], map: "PK_t_f_period_1")
+}
+
+model t_f_voucher {
+  voucher_id                String                      @id(map: "PK_T_F_VOUCHER") @db.VarChar(50)
+  voucher_type              String                      @db.VarChar(20)
+  fperiod                   Int
+  fyear                     Int
+  voucher_date              DateTime                    @db.Date
+  sort_no                   Int
+  voucher_no                Int
+  voucher_word_no           String                      @db.VarChar(20)
+  idoc                      Int
+  sum_j_amount              Decimal                     @default(0, map: "DF_t_f_voucher_j_amount") @db.Decimal(18, 2)
+  sum_d_amount              Decimal                     @default(0, map: "DF_t_f_voucher_d_amount") @db.Decimal(18, 2)
+  entry_person              String                      @db.VarChar(20)
+  entry_time                DateTime                    @db.DateTime
+  audit_person              String?                     @db.VarChar(20)
+  audit_time                DateTime?                   @db.DateTime
+  casher                    String?                     @db.VarChar(20)
+  casher_time               DateTime?                   @db.DateTime
+  submit_person             String?                     @db.VarChar(20)
+  submit_time               DateTime?                   @db.DateTime
+  bill_word                 String                      @db.VarChar(10)
+  source_id                 String?                     @db.VarChar(20)
+  is_profit_loss            Int?                        @default(0, map: "DF_t_f_voucher_is_profit_loss")
+  s_status                  String?                     @default("有效", map: "DF_t_f_voucher_s_status") @db.VarChar(20)
+  is_asset                  Int?                        @default(0, map: "DF_t_f_voucher_is_asset")
+  is_cash                   Int?                        @default(0, map: "DF__t_f_vouch__is_ca__26A5A303")
+  t_f_voucher_type          t_f_voucher_type            @relation(fields: [voucher_type], references: [voucher_type], onUpdate: NoAction, map: "FK_T_F_VOUC_REFERF_VOUC_272")
+  t_f_voucher_detail        t_f_voucher_detail[]
+  t_r_dept_equipment_reduce t_r_dept_equipment_reduce[]
+}
+
+model t_f_voucher_detail {
+  voucher_detail     String      @id(map: "PK_T_F_VOUCHER_DETAIL") @db.VarChar(20)
+  voucher_id         String      @db.VarChar(50)
+  abstract           String      @db.VarChar(100)
+  code               String?     @db.VarChar(20)
+  code_full_name     String?     @db.VarChar(200)
+  j_amount           Decimal?    @db.Decimal(18, 2)
+  d_amount           Decimal?    @db.Decimal(18, 2)
+  end_amount         Decimal?    @db.Decimal(18, 2)
+  detail_source_id   String?     @db.VarChar(20)
+  d_row_no           Int?
+  opposite_code      String?     @db.VarChar(20)
+  root_code          String?     @db.VarChar(20)
+  opposite_root_code String?     @db.VarChar(20)
+  s_direction        String?     @db.VarChar(5)
+  t_f_voucher        t_f_voucher @relation(fields: [voucher_id], references: [voucher_id], onUpdate: NoAction, map: "FK_T_F_VONCE_T_F_VOUC_273")
+  t_f_code           t_f_code?   @relation(fields: [code], references: [code], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_F_VOUC_REFERENCE_T_F_CODE")
+}
+
+model t_f_voucher_type {
+  voucher_type      String        @id(map: "PK_T_F_VOUCHER_TYPE") @db.VarChar(20)
+  voucher_type_name String        @db.VarChar(20)
+  prefix            String?       @db.VarChar(20)
+  s_status          String?       @db.VarChar(10)
+  t_f_voucher       t_f_voucher[]
+}
+
+model t_invalid_bill {
+  invalid_bill                                               String        @id(map: "PK_T_INVALID_BILL") @db.VarChar(20)
+  work_bill                                                  String?       @db.VarChar(20)
+  material_id                                                String        @db.VarChar(50)
+  sepc                                                       String?       @db.VarChar(50)
+  quantity                                                   Decimal       @db.Decimal(18, 2)
+  reason                                                     String?       @db.VarChar(Max)
+  comment                                                    String?       @db.VarChar(Max)
+  date_time                                                  DateTime      @db.DateTime
+  entry_person                                               String        @db.VarChar(20)
+  comment_person                                             String?       @db.VarChar(20)
+  s_status                                                   String        @db.VarChar(20)
+  unit                                                       String        @db.VarChar(5)
+  left_material_id                                           String        @db.VarChar(50)
+  left_quantity                                              Decimal       @db.Decimal(18, 2)
+  left_unit                                                  String?       @db.VarChar(5)
+  t_a_material_t_invalid_bill_material_idTot_a_material      t_a_material  @relation("t_invalid_bill_material_idTot_a_material", fields: [material_id], references: [material_id], onUpdate: NoAction, map: "FK_T_INVALID_material_refsss")
+  t_a_unit                                                   t_a_unit      @relation(fields: [unit], references: [unit], onUpdate: NoAction, map: "FK_T_invalid_unit_159")
+  t_a_material_t_invalid_bill_left_material_idTot_a_material t_a_material  @relation("t_invalid_bill_left_material_idTot_a_material", fields: [left_material_id], references: [material_id], onUpdate: NoAction, map: "FK_T_Reference_160")
+  t_stock_in                                                 t_stock_in[]
+  t_stock_out                                                t_stock_out[]
+}
+
+model t_m_fee {
+  id              BigInt       @id(map: "PK_T_M_FEE") @default(autoincrement())
+  fee_type        String       @db.VarChar(5)
+  s_code          String       @db.VarChar(50)
+  in_detail       String?      @db.VarChar(20)
+  in_id           String?      @db.VarChar(20)
+  out_detail      String?      @db.VarChar(20)
+  out_id          String?      @db.VarChar(20)
+  material_id     String?      @db.VarChar(50)
+  material_name   String?      @db.VarChar(50)
+  pack_spec       Decimal?     @db.Decimal(18, 2)
+  pack_unit       String?      @db.VarChar(5)
+  pack_quantity   Decimal?     @db.Decimal(18, 2)
+  packing         String?      @db.VarChar(20)
+  man_address     String?      @db.VarChar(20)
+  tech            String?      @db.VarChar(20)
+  unit            String?      @db.VarChar(5)
+  quantity        Decimal?     @db.Decimal(18, 2)
+  weight_unit     String?      @db.VarChar(5)
+  weight_quantity Decimal?     @db.Decimal(18, 2)
+  in_date_time    DateTime?    @db.DateTime
+  out_date_time   DateTime?    @db.DateTime
+  stay_days       Int?
+  unit_price      Decimal?     @db.Decimal(18, 8)
+  amount          Decimal?     @db.Decimal(18, 2)
+  memo            String?      @db.VarChar(200)
+  spec            String?      @db.VarChar(50)
+  material_type   String?      @db.VarChar(50)
+  t_a_fee_type    t_a_fee_type @relation(fields: [fee_type], references: [fee_type], onUpdate: NoAction, map: "FK_T_M_FEE_T_A_FEE__268")
+}
+
+model t_m_fee_sum {
+  id           BigInt       @id(map: "PK_T_M_FEE_SUM") @default(autoincrement())
+  s_code       String       @db.VarChar(50)
+  fee_type     String       @db.VarChar(5)
+  amount       Decimal?     @db.Decimal(18, 2)
+  memo         String?      @db.VarChar(200)
+  t_a_fee_type t_a_fee_type @relation(fields: [fee_type], references: [fee_type], onUpdate: NoAction, map: "FK_T_M_FET_A_FEE__269")
+}
+
+model t_m_stock_journal {
+  detail_id         String    @id(map: "PK_T_M_STOCK_JOURNAL") @db.VarChar(20)
+  bill_id           String    @db.VarChar(20)
+  in_or_out         String?   @db.VarChar(5)
+  in_out_type       String    @db.VarChar(20)
+  in_out_type_name  String    @db.VarChar(20)
+  material_id       String?   @db.VarChar(50)
+  material_name     String?   @db.VarChar(50)
+  material_no       String?   @db.VarChar(50)
+  supplier          String?   @db.VarChar(20)
+  cust              String?   @db.VarChar(20)
+  batch_no          String?   @db.VarChar(20)
+  batch_id          String?   @db.VarChar(20)
+  s_code            String    @db.VarChar(50)
+  in_detail         String?   @db.VarChar(20)
+  in_id             String?   @db.VarChar(20)
+  out_detail        String?   @db.VarChar(20)
+  out_id            String?   @db.VarChar(20)
+  pack_spec         Decimal?  @db.Decimal(18, 2)
+  pack_unit         String?   @db.VarChar(5)
+  pack_quantity     Decimal?  @db.Decimal(18, 2)
+  packing           String?   @db.VarChar(20)
+  man_address       String?   @db.VarChar(20)
+  tech              String?   @db.VarChar(20)
+  unit              String?   @db.VarChar(5)
+  quantity          Decimal?  @db.Decimal(18, 2)
+  weight_unit       String?   @db.VarChar(5)
+  weight_quantity   Decimal?  @db.Decimal(18, 2)
+  date_time         DateTime? @db.DateTime
+  memo              String?   @db.VarChar(200)
+  material_batch_id String?   @db.VarChar(50)
+  s_status          String?   @db.VarChar(20)
+  spec              String?   @db.VarChar(50)
+  material_type     String?   @db.VarChar(50)
+}
+
+model t_m_sum_type {
+  sum_type      String @id(map: "PK_T_M_SUM_TYPE") @db.VarChar(20)
+  sum_type_name String @db.VarChar(50)
+}
+
+model t_material_batch {
+  material_batch_id  String               @id(map: "PK_T_MATERIAL_BATCH") @db.VarChar(50)
+  material_id        String?              @db.VarChar(50)
+  batch_id           String?              @db.VarChar(20)
+  in_quantity        Decimal              @default(0, map: "DF_t_material_batch_in_quantity") @db.Decimal(18, 2)
+  out_quantity       Decimal              @default(0, map: "DF_t_material_batch_out_quantity") @db.Decimal(18, 2)
+  left_quantity      Decimal              @default(0, map: "DF_t_material_batch_left_quantity") @db.Decimal(18, 2)
+  entry_time         DateTime?            @default(now(), map: "DF_t_material_batch_entry_time") @db.DateTime
+  s_code             String?              @db.VarChar(50)
+  batch_no           String?              @db.VarChar(20)
+  man_address        String?              @db.VarChar(20)
+  supplier           String?              @db.VarChar(50)
+  stock              String?              @db.VarChar(20)
+  t_a_material       t_a_material?        @relation(fields: [material_id], references: [material_id], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_MATERI_REFE_T_A_MATE_255")
+  t_purchase_batch   t_purchase_batch?    @relation(fields: [batch_id], references: [batch_id], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_MATERI_RHA_256")
+  t_stock_in_detail  t_stock_in_detail[]
+  t_stock_out_detail t_stock_out_detail[]
+}
+
+model t_material_request {
+  request_id                String                      @id(map: "PK_T_MATERIAL_REQUEST") @db.VarChar(20)
+  work_bill                 String                      @db.VarChar(20)
+  entry_person              String                      @db.VarChar(20)
+  date_time                 DateTime                    @db.DateTime
+  s_status                  String                      @db.VarChar(20)
+  t_work_bill               t_work_bill                 @relation(fields: [work_bill], references: [work_bill], onUpdate: NoAction, map: "FK_T_Reference_152")
+  t_material_request_detail t_material_request_detail[]
+  t_stock_out               t_stock_out[]
+}
+
+model t_material_request_detail {
+  detail_id          String             @id(map: "PK_T_MATERIAL_REQUEST_DETAIL") @db.VarChar(20)
+  request_id         String             @db.VarChar(20)
+  material_id        String             @db.VarChar(20)
+  quantity           Decimal            @db.Decimal(18, 2)
+  memo               String?            @db.VarChar(200)
+  t_material_request t_material_request @relation(fields: [request_id], references: [request_id], onUpdate: NoAction, map: "FK_T_Reference_151")
+}
+
+model t_pay_bill {
+  bill_id          String             @id(map: "PK_T_PAY_BILL") @db.VarChar(20)
+  supplier         String?            @db.VarChar(20)
+  purchase_id      String?            @db.VarChar(20)
+  material_id      String?            @db.VarChar(20)
+  amount           Decimal            @db.Decimal(18, 2)
+  spec             String?            @db.VarChar(50)
+  quantity         Decimal?           @db.Decimal(18, 2)
+  bill_no          String?            @db.VarChar(50)
+  entry_person     String             @db.VarChar(20)
+  entry_time       DateTime           @db.DateTime
+  audit_person     String?            @db.VarChar(20)
+  audit_time       DateTime?          @db.DateTime
+  s_status         String             @db.VarChar(20)
+  rate             Decimal?           @db.Decimal(18, 2)
+  rate_amount      Decimal?           @db.Decimal(18, 2)
+  rest_amount      Decimal?           @db.Decimal(18, 2)
+  gl_status        String?            @db.VarChar(20)
+  memo             String?            @db.VarChar(200)
+  t_a_supplier     t_a_supplier?      @relation(fields: [supplier], references: [supplier], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_PAY_BI_REFERENCE_T_A_SUPP")
+  t_purchase       t_purchase?        @relation(fields: [purchase_id], references: [purchase_id], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_PAY_BI_REFERENCE_T_PURCHA")
+  t_pay_bill_refer t_pay_bill_refer[]
+}
+
+model t_pay_bill_refer {
+  bill_id     String     @db.VarChar(20)
+  purchase_id String     @db.VarChar(20)
+  amount      Decimal?   @default(0.00, map: "DF__t_pay_bil__amoun__444B1483") @db.Decimal(18, 2)
+  t_purchase  t_purchase @relation(fields: [purchase_id], references: [purchase_id], onUpdate: NoAction, map: "FK_T_PAY_BILL_ORDER_191")
+  t_pay_bill  t_pay_bill @relation(fields: [bill_id], references: [bill_id], onUpdate: NoAction, map: "FK_T_PAY_pur_190")
+
+  @@id([bill_id, purchase_id], map: "PK_T_PAY_BILL_REFER")
+}
+
+model t_pay_found_purchase_divide {
+  request_pay_id      String              @db.VarChar(20)
+  purchase_id         String              @db.VarChar(20)
+  found_id            String              @db.VarChar(20)
+  pay_amount          Decimal             @db.Decimal(18, 2)
+  t_a_found           t_a_found           @relation(fields: [found_id], references: [ID], onUpdate: NoAction, map: "FK_T_PAY_FO_REFEFOUN_223")
+  t_pay_request_refer t_pay_request_refer @relation(fields: [request_pay_id, purchase_id], references: [request_pay_id, purchase_id], onUpdate: NoAction, map: "FK_T_PAY_FO_RET_PAY_R_222")
+
+  @@id([request_pay_id, purchase_id, found_id], map: "PK_T_PAY_FOUND_PURCHASE_DIVIDE")
+}
+
+model t_pay_request {
+  request_pay_id                                          String                      @id(map: "PK_T_PAY_REQUEST") @db.VarChar(20)
+  purchase_id                                             String?                     @db.VarChar(20)
+  purchase_time                                           DateTime?                   @db.DateTime
+  cust                                                    String                      @db.VarChar(20)
+  purchase_person                                         String?                     @db.VarChar(20)
+  amount                                                  Decimal                     @db.Decimal(18, 2)
+  entry_person                                            String                      @db.VarChar(20)
+  entry_time                                              DateTime                    @db.DateTime
+  audit_person                                            String?                     @db.VarChar(20)
+  audit_time                                              DateTime?                   @db.DateTime
+  s_status                                                String                      @db.VarChar(20)
+  dept                                                    String?                     @db.VarChar(20)
+  pay_type                                                String?                     @db.VarChar(20)
+  open_bank                                               String?                     @db.VarChar(200)
+  card_no                                                 String?                     @db.VarChar(200)
+  payed_amount                                            Decimal?                    @db.Decimal(18, 2)
+  memo1                                                   String?                     @db.VarChar(100)
+  open_bank_no                                            String?                     @db.VarChar(20)
+  t_a_found                                               t_a_found[]
+  t_a_personnel_t_pay_request_entry_personTot_a_personnel t_a_personnel               @relation("t_pay_request_entry_personTot_a_personnel", fields: [entry_person], references: [personnel], onUpdate: NoAction, map: "FK_T_PAY_RE_REFERENCE_T_A_PERS")
+  t_a_personnel_t_pay_request_audit_personTot_a_personnel t_a_personnel?              @relation("t_pay_request_audit_personTot_a_personnel", fields: [audit_person], references: [personnel], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_PAY_RE_REFERENCE_T_A_PERSrtss")
+  t_a_dept                                                t_a_dept?                   @relation(fields: [dept], references: [dept], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_PAY_Request_DEPT163")
+  t_pay_request_detail                                    t_pay_request_detail[]
+  t_pay_request_found_refer                               t_pay_request_found_refer[]
+  t_pay_request_refer                                     t_pay_request_refer[]
+}
+
+model t_pay_request_detail {
+  id             String                    @id(map: "PK_T_REQUEST_PAY_DETAIL") @db.VarChar(20)
+  request_pay_id String                    @db.VarChar(20)
+  purchase_id    String                    @db.VarChar(20)
+  material_id    String                    @db.VarChar(20)
+  unit_price     Decimal?                  @db.Decimal(18, 8)
+  quantity       Decimal                   @db.Decimal(18, 2)
+  rate           Decimal?                  @db.Decimal(18, 2)
+  amount         Decimal                   @db.Decimal(18, 2)
+  request_time   DateTime?                 @db.DateTime
+  memo           String?                   @db.VarChar(200)
+  yun_fee        Decimal?                  @db.Decimal(18, 2)
+  time_version   Unsupported("timestamp")?
+  t_pay_request  t_pay_request             @relation(fields: [request_pay_id], references: [request_pay_id], onUpdate: NoAction, map: "FK_T_REQUES_REFERENCE_T_PAY_RE")
+}
+
+model t_pay_request_found_refer {
+  found_id       String        @db.VarChar(20)
+  request_pay_id String        @db.VarChar(20)
+  pay_amount     Decimal?      @db.Decimal(18, 2)
+  t_pay_request  t_pay_request @relation(fields: [request_pay_id], references: [request_pay_id], onUpdate: NoAction, map: "FK_T_PAY_R_R_T_PAY_RE_221")
+  t_a_found      t_a_found     @relation(fields: [found_id], references: [ID], onUpdate: NoAction, map: "FK_T_PAY_RE_R_T_A_FOUN_220")
+
+  @@id([found_id, request_pay_id], map: "PK_T_PAY_REQUEST_FOUND_REFER")
+}
+
+model t_pay_request_refer {
+  request_pay_id              String                        @db.VarChar(20)
+  purchase_id                 String                        @db.VarChar(20)
+  request_pay_amount          Decimal?                      @default(0.00, map: "DF__t_pay_req__reque__453F38BC") @db.Decimal(18, 2)
+  t_pay_found_purchase_divide t_pay_found_purchase_divide[]
+  t_pay_request               t_pay_request                 @relation(fields: [request_pay_id], references: [request_pay_id], onUpdate: NoAction, map: "FK_T_PAY__PAY_REquest_192")
+  t_purchase                  t_purchase                    @relation(fields: [purchase_id], references: [purchase_id], onUpdate: NoAction, map: "FK_T_PAY__PUR_193")
+
+  @@id([request_pay_id, purchase_id], map: "PK_T_PAY_REQUEST_REFER")
+}
+
+model t_purchase {
+  purchase_id                                          String                          @id(map: "PK_T_PURCHASE") @db.VarChar(20)
+  purchase_time                                        DateTime                        @db.DateTime
+  cust                                                 String                          @db.VarChar(20)
+  dept                                                 String?                         @db.VarChar(20)
+  purchase_person                                      String?                         @db.VarChar(20)
+  amount                                               Decimal                         @db.Decimal(18, 2)
+  submit_time                                          DateTime?                       @db.DateTime
+  entry_person                                         String                          @db.VarChar(20)
+  entry_time                                           DateTime                        @db.DateTime
+  time_version                                         Unsupported("timestamp")?
+  audit_time                                           DateTime?                       @db.DateTime
+  s_status                                             String                          @db.VarChar(20)
+  audit_person                                         String?                         @db.VarChar(20)
+  is_pay                                               Boolean
+  is_in                                                Boolean
+  fk_status                                            String?                         @db.VarChar(20)
+  kp_status                                            String?                         @db.VarChar(20)
+  currency                                             String?                         @db.VarChar(20)
+  purchase_request_id                                  String?                         @db.VarChar(20)
+  pay_type                                             String?                         @db.VarChar(20)
+  quality_request                                      String?                         @db.VarChar(Max)
+  agreement_item                                       String?                         @db.VarChar(Max)
+  company_name                                         String?                         @db.VarChar(200)
+  tel                                                  String?                         @db.VarChar(200)
+  fax                                                  String?                         @db.VarChar(200)
+  tax_no                                               String?                         @db.VarChar(200)
+  bank_card                                            String?                         @db.VarChar(200)
+  address                                              String?                         @db.VarChar(200)
+  pur_person                                           String?                         @db.VarChar(200)
+  supplier_person                                      String?                         @db.VarChar(200)
+  supplier_tel                                         String?                         @db.VarChar(200)
+  supplier_fax                                         String?                         @db.VarChar(200)
+  supplier_address                                     String?                         @db.VarChar(200)
+  amount_chs                                           String?                         @db.VarChar(200)
+  request_person                                       String?                         @db.VarChar(20)
+  request_time                                         DateTime?                       @db.DateTime
+  supplier_memo                                        String?                         @db.VarChar(200)
+  payed_amount                                         Decimal?                        @default(0.00, map: "DF_t_purchase_payed_amount") @db.Decimal(18, 2)
+  cust_bak                                             String?                         @db.VarChar(20)
+  request_pay_amount                                   Decimal?                        @default(0.00, map: "DF__t_purchas__reque__4EC8A2F6") @db.Decimal(18, 2)
+  in_amount                                            Decimal?                        @default(0.00, map: "DF__t_purchas__in_am__4FBCC72F") @db.Decimal(18, 2)
+  billed_amount                                        Decimal?                        @default(0.00, map: "DF__t_purchas__bille__51A50FA1") @db.Decimal(18, 2)
+  memo                                                 String?                         @db.VarChar(100)
+  t_pay_bill                                           t_pay_bill[]
+  t_pay_bill_refer                                     t_pay_bill_refer[]
+  t_pay_request_refer                                  t_pay_request_refer[]
+  t_a_currency                                         t_a_currency?                   @relation(fields: [currency], references: [currency], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_PUR_CURRENCY_189")
+  t_purchase_request                                   t_purchase_request?             @relation(fields: [purchase_request_id], references: [purchase_request_id], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_PUR_REQUEST_188")
+  t_a_dept                                             t_a_dept?                       @relation(fields: [dept], references: [dept], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_PURCHA_REFERENCE_T_A_DEPT")
+  t_a_personnel_t_purchase_audit_personTot_a_personnel t_a_personnel?                  @relation("t_purchase_audit_personTot_a_personnel", fields: [audit_person], references: [personnel], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_PURCHA_REFERENCE_T_A_PERS")
+  t_a_personnel_t_purchase_entry_personTot_a_personnel t_a_personnel                   @relation("t_purchase_entry_personTot_a_personnel", fields: [entry_person], references: [personnel], onUpdate: NoAction, map: "FK_T_PURCHA_REFERENCE_T_A_PERSdfa")
+  t_purchase_detail                                    t_purchase_detail[]
+  t_purchase_fee                                       t_purchase_fee[]
+  t_purchase_supplier_alter_log                        t_purchase_supplier_alter_log[]
+  t_stock_in                                           t_stock_in[]
+  t_stock_in_detail                                    t_stock_in_detail[]
+  t_stock_out                                          t_stock_out[]
+}
+
+model t_purchase_batch {
+  batch_id         String             @id(map: "PK_T_PURCHASE_BATCH") @db.VarChar(20)
+  batch_no         String             @db.VarChar(20)
+  supplier         String             @db.VarChar(20)
+  purchase_id      String?            @db.VarChar(20)
+  memo             String?            @db.VarChar(50)
+  entry_person     String?            @db.VarChar(20)
+  entry_time       DateTime?          @default(now(), map: "DF_t_purchase_batch_entry_time") @db.DateTime
+  s_status         String?            @default("有效", map: "DF_t_purchase_batch_s_status") @db.VarChar(20)
+  t_a_s_code       t_a_s_code[]
+  t_material_batch t_material_batch[]
+  t_a_batch_no     t_a_batch_no       @relation(fields: [batch_no], references: [batch_no], onUpdate: NoAction, map: "FK_T_PURCHA_RECE_T_A_BATC_242")
+  t_a_supplier     t_a_supplier       @relation(fields: [supplier], references: [supplier], onUpdate: NoAction, map: "FK_T_PURCHA_REFT_A_SUPP_246")
+}
+
+model t_purchase_detail {
+  purchase_detail_id             String                           @id(map: "PK_T_PURCHASE_DETAIL") @db.VarChar(20)
+  purchase_id                    String                           @db.VarChar(20)
+  material_id                    String                           @db.VarChar(50)
+  unit_price                     Decimal?                         @default(0, map: "DF_t_purchase_detail_unit_price") @db.Decimal(18, 8)
+  quantity                       Decimal?                         @default(0, map: "DF_t_purchase_detail_quantity") @db.Decimal(18, 3)
+  rate                           Decimal?                         @default(0, map: "DF_t_purchase_detail_rate") @db.Decimal(18, 2)
+  amount                         Decimal?                         @default(0, map: "DF_t_purchase_detail_amount") @db.Decimal(18, 2)
+  request_time                   DateTime?                        @db.DateTime
+  memo                           String?                          @db.VarChar(200)
+  time_version                   Unsupported("timestamp")?
+  s_status                       String?                          @db.VarChar(20)
+  non_tax_price                  Decimal?                         @db.Decimal(18, 8)
+  non_tax_amount                 Decimal?                         @db.Decimal(18, 2)
+  rate_amount                    Decimal?                         @db.Decimal(18, 2)
+  non_tax_price_bak              Decimal?                         @db.Decimal(18, 4)
+  non_tax_amount_bak             Decimal?                         @db.Decimal(18, 2)
+  in_quantity                    Decimal?                         @default(0.00, map: "DF__t_purchas__in_qu__50B0EB68") @db.Decimal(18, 2)
+  pack_unit                      String?                          @db.VarChar(5)
+  pack_quantity                  Decimal?                         @db.Decimal(18, 2)
+  unit                           String?                          @db.VarChar(5)
+  pack_spec                      Decimal?                         @db.Decimal(18, 2)
+  t_a_material                   t_a_material                     @relation(fields: [material_id], references: [material_id], onUpdate: NoAction, map: "FK_T_PURCHA_REFERENCE_T_A_MATE")
+  t_purchase                     t_purchase                       @relation(fields: [purchase_id], references: [purchase_id], onUpdate: NoAction, map: "FK_T_PURCHA_REFERENCE_T_PURCHA")
+  t_r_year_month_purchase_detail t_r_year_month_purchase_detail[]
+  t_stock_in_detail              t_stock_in_detail[]
+}
+
+model t_purchase_fee {
+  purchase_fee_id String       @id(map: "PK_T_PURCHASE_FEE") @db.VarChar(20)
+  year_month      String?      @db.VarChar(6)
+  purchase_id     String?      @db.VarChar(20)
+  fee_type        String       @db.VarChar(5)
+  amount          Decimal?     @db.Decimal(18, 2)
+  memo            String?      @db.VarChar(200)
+  entry_person    String       @db.VarChar(20)
+  entry_time      DateTime     @db.DateTime
+  s_code          String?      @db.VarChar(50)
+  t_a_fee_type    t_a_fee_type @relation(fields: [fee_type], references: [fee_type], onUpdate: NoAction, map: "FK_T_PUR_T_A_FEE_216")
+  t_purchase      t_purchase?  @relation(fields: [purchase_id], references: [purchase_id], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_PUR_T_PUR_215")
+  t_a_s_code      t_a_s_code?  @relation(fields: [s_code], references: [s_code], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_PURE_A_S_CO_280")
+}
+
+model t_purchase_price {
+  id           BigInt       @id(map: "PK_T_PURCHASE_PRICE") @default(autoincrement())
+  year_month   String       @db.VarChar(20)
+  material_id  String       @db.VarChar(50)
+  price        Decimal      @db.Decimal(18, 6)
+  is_execute   Boolean
+  imge_file    Bytes?
+  rate         Decimal?     @db.Decimal(18, 2)
+  tax_price    Decimal?     @db.Decimal(18, 6)
+  datetiime    DateTime     @db.DateTime
+  t_a_material t_a_material @relation(fields: [material_id], references: [material_id], onUpdate: NoAction, map: "FK_T_PU_R_M_224")
+}
+
+model t_purchase_price_change {
+  id              BigInt                    @id(map: "PK_T_PURCHASE_PRICE_CHANGE") @default(autoincrement())
+  import_id       String                    @db.VarChar(50)
+  i_purchase_id   String                    @db.VarChar(50)
+  i_material_id   String?                   @db.VarChar(50)
+  i_material_name String?                   @db.VarChar(50)
+  old_price       Decimal?                  @db.Decimal(18, 8)
+  new_price       Decimal?                  @db.Decimal(18, 8)
+  new_cust_code   String?                   @db.VarChar(50)
+  new_cust_name   String?                   @db.VarChar(50)
+  import_person   String                    @db.VarChar(20)
+  import_time     DateTime                  @db.DateTime
+  s_status        String                    @db.VarChar(20)
+  audit_person    String?                   @db.VarChar(20)
+  audit_time      DateTime?                 @db.DateTime
+  time_version    Unsupported("timestamp")?
+  old_rate        Decimal?                  @db.Decimal(18, 2)
+  new_rate        Decimal?                  @db.Decimal(18, 2)
+}
+
+model t_purchase_request {
+  purchase_request_id       String                      @id(map: "PK_T_PURCHASE_REQUEST") @db.VarChar(20)
+  request_time              DateTime                    @db.DateTime
+  dept                      String                      @db.VarChar(20)
+  request_person            String                      @db.VarChar(20)
+  entry_person              String                      @db.VarChar(20)
+  entry_time                DateTime                    @db.DateTime
+  s_status                  String                      @db.VarChar(20)
+  memo                      String?                     @db.VarChar(200)
+  t_purchase                t_purchase[]
+  t_purchase_request_detail t_purchase_request_detail[]
+}
+
+model t_purchase_request_detail {
+  request_detail_id    String                    @db.VarChar(20)
+  purchase_request_id  String                    @db.VarChar(20)
+  material_id          String                    @db.VarChar(20)
+  quantity             Decimal                   @db.Decimal(18, 2)
+  detail_memo          String?                   @db.VarChar(200)
+  time_version         Unsupported("timestamp")?
+  s_status             String                    @db.VarChar(20)
+  request_arrived_time DateTime?                 @db.DateTime
+  t_purchase_request   t_purchase_request        @relation(fields: [purchase_request_id], references: [purchase_request_id], onUpdate: NoAction, map: "FK_T_PUR_DETAIL_189")
+
+  @@id([request_detail_id, purchase_request_id], map: "PK_T_PURCHASE_REQUEST_DETAIL")
+}
+
+model t_purchase_supplier_alter_log {
+  id                                                                    BigInt        @id(map: "PK_T_PURCHASE_SUPPLIER_ALTER_L") @default(autoincrement())
+  purchase_id                                                           String?       @db.VarChar(20)
+  old_supplier                                                          String?       @db.VarChar(20)
+  new_supplier                                                          String?       @db.VarChar(20)
+  entry_person                                                          String        @db.VarChar(20)
+  entry_time                                                            DateTime      @db.DateTime
+  audit_time                                                            DateTime?     @db.DateTime
+  s_status                                                              String        @db.VarChar(20)
+  audit_person                                                          String?       @db.VarChar(20)
+  t_a_supplier_t_purchase_supplier_alter_log_old_supplierTot_a_supplier t_a_supplier? @relation("t_purchase_supplier_alter_log_old_supplierTot_a_supplier", fields: [old_supplier], references: [supplier], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_PURCHA_R_SUPP_231")
+  t_a_supplier_t_purchase_supplier_alter_log_new_supplierTot_a_supplier t_a_supplier? @relation("t_purchase_supplier_alter_log_new_supplierTot_a_supplier", fields: [new_supplier], references: [supplier], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_PURCHA_REFE_A_SUPP_232")
+  t_purchase                                                            t_purchase?   @relation(fields: [purchase_id], references: [purchase_id], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_PURCHA_REFE_T_PURCHA_230")
+}
+
+model t_r_dept_asset_reduce {
+  year_month   String  @db.VarChar(6)
+  dept         String  @db.VarChar(20)
+  asset        String  @db.VarChar(20)
+  asset_reduce Decimal @db.Decimal(18, 2)
+
+  @@id([year_month, dept, asset], map: "PK_T_R_DEPT_ASSET_REDUCE")
+}
+
+model t_r_dept_equipment_reduce {
+  fyear         Int
+  fperiod       Int
+  equipment     String       @db.VarChar(20)
+  year_month    String       @db.VarChar(6)
+  dept          String       @db.VarChar(20)
+  reduce_amount Decimal?     @db.Decimal(18, 2)
+  begin_value   Decimal?     @db.Decimal(18, 2)
+  current_value Decimal?     @db.Decimal(18, 2)
+  code          String?      @db.VarChar(20)
+  s_status      String?      @db.VarChar(20)
+  voucher_id    String?      @db.VarChar(50)
+  t_f_voucher   t_f_voucher? @relation(fields: [voucher_id], references: [voucher_id], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_R_DEPT_REF_T_F_VOUC_283")
+
+  @@id([fyear, fperiod, equipment], map: "PK_T_R_DEPT_EQUIPMENT_REDUCE")
+}
+
+model t_r_dept_year_month_in {
+  year_month          String   @db.VarChar(6)
+  dept                String   @db.VarChar(20)
+  in_weight           Decimal? @db.Decimal(18, 2)
+  equip_reduce_amount Decimal? @db.Decimal(18, 2)
+  asset_reduce_amount Decimal? @db.Decimal(18, 2)
+  dept_shared_amount  Decimal? @db.Decimal(18, 2)
+
+  @@id([year_month, dept], map: "PK_T_R_DEPT_YEAR_MONTH_IN")
+}
+
+model t_r_material_avg_price {
+  year_month       String   @db.VarChar(6)
+  material_id      String   @db.VarChar(50)
+  last_price       Decimal? @db.Decimal(18, 8)
+  last_quantity    Decimal? @db.Decimal(18, 2)
+  in_quantity      Decimal? @db.Decimal(18, 2)
+  non_tax_in_price Decimal? @db.Decimal(18, 8)
+  in_amount        Decimal? @db.Decimal(18, 2)
+  avg_price        Decimal? @db.Decimal(18, 8)
+  c_type           String   @db.VarChar(20)
+  purchase_fee     Decimal? @db.Decimal(18, 2)
+
+  @@id([year_month, material_id], map: "PK_T_R_MATERIAL_AVG_PRICE")
+}
+
+model t_r_work_bill_in {
+  year_month       String   @db.VarChar(6)
+  work_bill        String   @db.VarChar(20)
+  material_id      String   @db.VarChar(50)
+  work_bill_type   String   @db.VarChar(20)
+  bom_id           String   @db.VarChar(20)
+  in_quantity      Decimal? @db.Decimal(18, 2)
+  weight           Decimal? @db.Decimal(18, 4)
+  in_weight        Decimal? @db.Decimal(18, 6)
+  left_material_id String?  @db.VarChar(50)
+  left_quantity    Decimal? @db.Decimal(18, 4)
+  dept             String?  @db.VarChar(20)
+  c_type           String   @db.VarChar(20)
+
+  @@id([year_month, work_bill], map: "PK_T_R_WORK_BILL_IN")
+}
+
+model t_r_work_bill_material_used {
+  year_month          String   @db.VarChar(6)
+  material_id         String   @db.VarChar(50)
+  bom_id              String   @db.VarChar(20)
+  bom_material_id     String   @db.VarChar(50)
+  work_bill_type      String   @db.VarChar(20)
+  bom_single_quantity Decimal  @db.Decimal(18, 2)
+  bom_used_quantity   Decimal  @db.Decimal(18, 2)
+  bom_material_price  Decimal? @db.Decimal(18, 8)
+  bom_material_amount Decimal  @db.Decimal(18, 2)
+
+  @@id([year_month, material_id, bom_id, bom_material_id, work_bill_type], map: "PK_T_R_WORK_BILL_MATERIAL_USED")
+}
+
+model t_r_year_month_in {
+  year_month       String   @db.VarChar(6)
+  material_id      String   @db.VarChar(50)
+  bom_id           String   @db.VarChar(20)
+  left_material_id String   @db.VarChar(50)
+  dept             String   @db.VarChar(20)
+  work_bill_type   String   @db.VarChar(20)
+  in_quantity      Decimal? @db.Decimal(18, 2)
+  weight           Decimal? @db.Decimal(18, 4)
+  in_weight        Decimal? @db.Decimal(18, 2)
+  single_cost      Decimal? @db.Decimal(18, 8)
+  cost_amount      Decimal? @db.Decimal(18, 2)
+  wage_price       Decimal? @db.Decimal(18, 8)
+  wage_amount      Decimal? @db.Decimal(18, 2)
+  bom_used_amount  Decimal? @db.Decimal(18, 2)
+  left_quantity    Decimal? @db.Decimal(18, 2)
+  left_price       Decimal? @db.Decimal(18, 8)
+  left_amount      Decimal? @db.Decimal(18, 2)
+  asset_reduce     Decimal? @db.Decimal(18, 2)
+  equip_reduce     Decimal? @db.Decimal(18, 2)
+  electric_fee     Decimal? @db.Decimal(18, 2)
+  water_fee        Decimal? @db.Decimal(18, 2)
+  baoxiao_fee      Decimal? @db.Decimal(18, 2)
+  model_fee        Decimal? @db.Decimal(18, 2)
+  other_fee        Decimal? @db.Decimal(18, 2)
+  processing_fee   Decimal? @db.Decimal(18, 2)
+  dept_shared_fee  Decimal? @db.Decimal(18, 2)
+  c_type           String   @db.VarChar(20)
+  t_a_dept         t_a_dept @relation(fields: [dept], references: [dept], onUpdate: NoAction, map: "FK_T_R_YEAR__A_DEPT_208")
+
+  @@id([year_month, material_id, bom_id, left_material_id, dept, work_bill_type], map: "PK_T_R_YEAR_MONTH_IN")
+}
+
+model t_r_year_month_in_reality_used {
+  year_month          String   @db.VarChar(6)
+  material_id         String   @db.VarChar(50)
+  bom_id              String   @db.VarChar(20)
+  work_bill_type      String   @db.VarChar(20)
+  dept                String   @db.VarChar(20)
+  bom_material_id     String   @db.VarChar(50)
+  bom_used_quantity   Decimal  @db.Decimal(18, 2)
+  bom_material_price  Decimal? @db.Decimal(18, 8)
+  bom_used_amount     Decimal? @db.Decimal(18, 2)
+  c_type              String   @db.VarChar(20)
+  bom_material_c_type String   @db.VarChar(20)
+
+  @@id([year_month, material_id, bom_id, dept, work_bill_type, bom_material_id], map: "PK_T_R_YEAR_MONTH_IN_REALITY_U")
+}
+
+model t_r_year_month_product_cost_reality {
+  year_month          String   @db.VarChar(6)
+  material_id         String   @db.VarChar(50)
+  dept                String?  @db.VarChar(20)
+  in_quantity         Decimal? @db.Decimal(18, 2)
+  single_cost         Decimal? @db.Decimal(18, 4)
+  in_weight           Decimal? @db.Decimal(18, 2)
+  cost_amount         Decimal? @db.Decimal(18, 2)
+  bom_used_amount     Decimal? @db.Decimal(18, 2)
+  left_amount         Decimal? @db.Decimal(18, 2)
+  wage_amount         Decimal? @db.Decimal(18, 4)
+  asset_reduce        Decimal? @db.Decimal(18, 2)
+  equip_reduce        Decimal? @db.Decimal(18, 2)
+  dept_shared_fee     Decimal? @db.Decimal(18, 2)
+  begin_quantity      Decimal? @db.Decimal(18, 2)
+  begin_price         Decimal? @db.Decimal(18, 8)
+  begin_amount        Decimal? @db.Decimal(18, 2)
+  avg_price           Decimal? @db.Decimal(18, 8)
+  out_quantity        Decimal? @db.Decimal(18, 2)
+  sale_amount         Decimal? @db.Decimal(18, 2)
+  used_weight         Decimal? @db.Decimal(18, 2)
+  sum_left_weight     Decimal? @db.Decimal(18, 2)
+  left_material_id    String?  @db.VarChar(50)
+  left_material_price Decimal? @db.Decimal(18, 8)
+  c_type              String   @db.VarChar(20)
+
+  @@id([year_month, material_id], map: "PK_T_R_YEAR_MONTH_PRODUCT_COST")
+}
+
+model t_r_year_month_product_out {
+  year_month   String   @db.VarChar(6)
+  material_id  String   @db.VarChar(50)
+  out_quantity Decimal? @db.Decimal(18, 2)
+
+  @@id([year_month, material_id], map: "PK_T_R_YEAR_MONTH_PRODUCT_OUT")
+}
+
+model t_r_year_month_purchase_detail {
+  id                       BigInt            @id(map: "PK_T_R_YEAR_MONTH_PURCHASE_DET") @default(autoincrement())
+  year_month               String            @db.VarChar(6)
+  purchase_detail_id       String            @db.VarChar(20)
+  material_id              String            @db.VarChar(50)
+  in_id                    String            @db.VarChar(20)
+  in_detail                String            @db.VarChar(20)
+  purchase_id              String            @db.VarChar(20)
+  non_tax_price            Decimal?          @db.Decimal(18, 8)
+  in_quantity              Decimal           @db.Decimal(18, 2)
+  in_non_tax_amount        Decimal           @db.Decimal(18, 2)
+  purchase_order_in_amount Decimal?          @db.Decimal(18, 2)
+  c_type                   String            @db.VarChar(20)
+  purchase_fee             Decimal           @db.Decimal(18, 2)
+  material_rate            Decimal?          @db.Decimal(18, 8)
+  material_fee             Decimal           @db.Decimal(18, 2)
+  t_purchase_detail        t_purchase_detail @relation(fields: [purchase_detail_id], references: [purchase_detail_id], onUpdate: NoAction, map: "FK_T_R_YEAR_R_T_PUR_217")
+  t_stock_in_detail        t_stock_in_detail @relation(fields: [in_detail], references: [in_detail], onUpdate: NoAction, map: "FK_T_R_YEAR_R_T_S_218")
+}
+
+model t_receivable {
+  receivable_id String       @id(map: "PK_T_RECEIVABLE") @db.VarChar(20)
+  sales_bill    String       @db.VarChar(20)
+  cust          String       @db.VarChar(20)
+  amount        Decimal      @db.Decimal(18, 2)
+  t_a_cust      t_a_cust     @relation(fields: [cust], references: [cust], onUpdate: NoAction, map: "FK_T_RECEIV_REFERENCE_T_A_CUST")
+  t_sales_bill  t_sales_bill @relation(fields: [sales_bill], references: [sales_bill], onUpdate: NoAction, map: "FK_T_RECEIV_REFERENCE_T_SALES_")
+}
+
+model t_s_log_dataview {
+  ID            String    @id(map: "PK_t_s_log_dataview_log") @default("newid()", map: "DF_t_s_log_dataview_log_ID") @db.VarChar(50)
+  sessionid     String    @db.VarChar(50)
+  systemcode    String?   @db.Char(10)
+  dataview      String?   @db.VarChar(20)
+  dataview_info String?   @db.VarChar(8000)
+  exectime      Float?
+  memo          String?   @db.VarChar(100)
+  execdate      DateTime? @default(now(), map: "DF_t_s_log_dataview_log_execdate") @db.DateTime
+  exechour      String?   @default("substring(CONVERT([varchar](100),getdate(),(20)),(12),(2))", map: "DF_t_s_log_dataview_log_exechour") @db.VarChar(2)
+}
+
+model t_s_log_exception {
+  ID           String    @id(map: "PK_t_s_log_exception") @default("newid()", map: "DF_t_s_log_exception_ID") @db.VarChar(50)
+  sessionid    String    @db.VarChar(50)
+  systemcode   String?   @db.Char(10)
+  positionname String?   @db.VarChar(100)
+  messageinfo  String?   @db.VarChar(Max)
+  memo         String?   @db.VarChar(200)
+  visittime    DateTime? @default(now(), map: "DF_t_s_log_exception_visittime") @db.DateTime
+  log_level    String?   @db.VarChar(50)
+  logger       String?   @db.VarChar(255)
+  visitdate    DateTime? @default(now(), map: "DF_t_s_log_exception_visitdate") @db.Date
+}
+
+model t_s_log_funtion {
+  ID           String    @id(map: "PK_t_s_log_funtion") @default("newid()", map: "DF_t_s_log_funtion_ID") @db.VarChar(50)
+  sessionid    String    @db.VarChar(50)
+  systemcode   String?   @db.Char(10)
+  pagename     String?   @db.VarChar(50)
+  functionname String?   @db.VarChar(50)
+  dataview     String?   @db.VarChar(50)
+  visitdate    DateTime? @default(now(), map: "DF_t_s_log_funtion_logindate") @db.Date
+  visittime    DateTime? @default(now(), map: "DF_t_s_log_funtion_logintime") @db.DateTime
+  visithour    String?   @default("substring(CONVERT([varchar](100),getdate(),(20)),(12),(2))", map: "DF_t_s_log_funtion_loginhour") @db.VarChar(2)
+}
+
+model t_s_log_login {
+  ID           String    @id(map: "PK_t_s_log_login") @default("newid()", map: "DF_t_s_log_login_ID") @db.VarChar(50)
+  username     String?   @db.VarChar(50)
+  usercity     String?   @db.VarChar(50)
+  userip       String?   @db.VarChar(50)
+  systemcode   String?   @db.Char(10)
+  checkstatus  String?   @db.Char(10)
+  messageinfo  String?   @db.VarChar(500)
+  resolution   String?   @db.Char(10)
+  cputype      String?   @db.Char(20)
+  systemtype   String?   @db.Char(20)
+  ipaddress    String?   @db.Char(20)
+  userbrowser  String?   @db.Char(20)
+  activexable  String?   @db.Char(10)
+  cookiesable  String?   @db.Char(10)
+  cssable      String?   @db.Char(10)
+  clienttype   String?   @db.Char(10)
+  platform     String?   @db.Char(20)
+  userlanguage String?   @db.Char(20)
+  useragent    String?   @db.VarChar(500)
+  logindate    DateTime? @default(now(), map: "DF_t_s_log_login_logindate") @db.Date
+  logintime    DateTime? @default(now(), map: "DF_t_s_log_login_logintime") @db.DateTime
+  loginhour    String?   @default("substring(CONVERT([varchar](100),getdate(),(20)),(12),(2))", map: "DF_t_s_log_login_loginhour") @db.VarChar(2)
+}
+
+model t_s_log_page {
+  ID         String    @id(map: "PK_t_s_log_page") @default("newid()", map: "DF_t_s_log_page_ID") @db.VarChar(50)
+  sessionid  String    @db.VarChar(50)
+  systemcode String?   @db.Char(10)
+  pageid     String    @db.VarChar(100)
+  pagename   String?   @db.VarChar(100)
+  exectime   Float?
+  visitdate  DateTime? @default(now(), map: "DF_t_s_log_page_logindate") @db.Date
+  visittime  DateTime? @default(now(), map: "DF_t_s_log_page_logintime") @db.DateTime
+  visithour  String?   @default("substring(CONVERT([varchar](100),getdate(),(20)),(12),(2))", map: "DF_t_s_log_page_loginhour") @db.VarChar(2)
+}
+
+model t_s_syn_log {
+  ID          String    @id(map: "PK_t_s_syn_log") @db.VarChar(50)
+  schedule_id String?   @db.VarChar(100)
+  class_name  String?   @db.VarChar(100)
+  exec_time   DateTime? @db.DateTime
+  message     String?   @db.VarChar(500)
+  log_level   String?   @db.VarChar(50)
+}
+
+model t_sale_price {
+  cust         String       @db.VarChar(20)
+  material_id  String       @db.VarChar(50)
+  year_month   String       @db.VarChar(6)
+  datetiime    DateTime     @db.DateTime
+  price        Decimal?     @db.Decimal(18, 8)
+  is_execute   Boolean
+  imge_file    Bytes?
+  tax_price    Decimal?     @db.Decimal(18, 8)
+  rate         Decimal?     @db.Decimal(18, 2)
+  t_a_cust     t_a_cust     @relation(fields: [cust], references: [cust], onUpdate: NoAction, map: "FK_T_SALE_P_REFERENCE_T_A_CUST")
+  t_a_material t_a_material @relation(fields: [material_id], references: [material_id], onUpdate: NoAction, map: "FK_T_SALE_P_REFERENCE_T_A_MATE")
+
+  @@id([cust, material_id, year_month], map: "PK_T_SALE_PRICE")
+}
+
+model t_sales_bill {
+  sales_bill          String                @id(map: "PK_T_SALES_BILL") @db.VarChar(20)
+  bill_no             String                @db.VarChar(20)
+  cust                String                @db.VarChar(20)
+  amount              Decimal               @db.Decimal(18, 2)
+  rate_amount         Decimal               @db.Decimal(18, 2)
+  bill_image          Bytes?
+  date_time           DateTime?             @db.DateTime
+  rate                Decimal?              @db.Decimal(18, 2)
+  rest_amount         Decimal?              @db.Decimal(18, 2)
+  s_status            String?               @default("未审核", map: "DF_t_sales_bill_s_status") @db.VarChar(20)
+  dept                String?               @db.VarChar(20)
+  sales_debit         String?               @db.VarChar(20)
+  currency            String?               @db.VarChar(20)
+  found_id            String?               @db.VarChar(20)
+  found_status        String?               @default("未回款", map: "DF_t_sales_bill_found_status") @db.VarChar(20)
+  t_receivable        t_receivable[]
+  t_a_currency        t_a_currency?         @relation(fields: [currency], references: [currency], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_SAL_currency_177")
+  t_a_cust            t_a_cust              @relation(fields: [cust], references: [cust], onUpdate: NoAction, map: "FK_T_SALES__REFERENCE_T_A_CUST2351235")
+  t_a_dept            t_a_dept?             @relation(fields: [dept], references: [dept], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_SALES_BILL_DEPT_167")
+  t_sales_debit       t_sales_debit?        @relation(fields: [sales_debit], references: [sales_debit], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_SALES_BILL_DUIZHANG172")
+  t_a_found           t_a_found?            @relation(fields: [found_id], references: [ID], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_SALES_FOUNd_181")
+  t_sales_bill_detail t_sales_bill_detail[]
+  t_sales_bill_refer  t_sales_bill_refer?
+}
+
+model t_sales_bill_detail {
+  id           String       @id(map: "PK_T_SALES_BILL_DETAIL") @db.VarChar(20)
+  sales_bill   String       @db.VarChar(20)
+  material_id  String       @db.VarChar(50)
+  quantity     Decimal      @db.Decimal(18, 2)
+  amount       Decimal      @db.Decimal(18, 2)
+  rate         Decimal      @db.Decimal(18, 2)
+  rate_amount  Decimal      @db.Decimal(18, 2)
+  unit_price   Decimal?     @db.Decimal(18, 8)
+  t_a_material t_a_material @relation(fields: [material_id], references: [material_id], onUpdate: NoAction, map: "FK_T_SALES__REFERENCE_T_A_MATE345")
+  t_sales_bill t_sales_bill @relation(fields: [sales_bill], references: [sales_bill], onUpdate: NoAction, map: "FK_T_SALES__REFERENCE_T_SALES_134512")
+}
+
+model t_sales_bill_refer {
+  sales_bill    String        @id(map: "PK_T_SALES_BILL_REFER") @db.VarChar(20)
+  sales_debit   String        @db.VarChar(20)
+  t_sales_bill  t_sales_bill  @relation(fields: [sales_bill], references: [sales_bill], onUpdate: NoAction, map: "FK_T_SALES__REFERENCE_T_SALES_15613")
+  t_sales_debit t_sales_debit @relation(fields: [sales_debit], references: [sales_debit], onUpdate: NoAction, map: "FK_T_SALES__REFERENCE_T_SALES_3463")
+}
+
+model t_sales_debit {
+  sales_debit                                             String                 @id(map: "PK_T_SALES_DEBIT") @db.VarChar(20)
+  cust                                                    String?                @db.VarChar(20)
+  start_time                                              DateTime?              @db.DateTime
+  end_time                                                DateTime?              @db.DateTime
+  check_person                                            String?                @db.VarChar(20)
+  entry_person                                            String?                @db.VarChar(20)
+  entry_time                                              DateTime?              @db.DateTime
+  s_status                                                String?                @db.VarChar(20)
+  memo                                                    String?                @db.VarChar(200)
+  amount                                                  Decimal?               @db.Decimal(18, 2)
+  t_sales_bill                                            t_sales_bill[]
+  t_sales_bill_refer                                      t_sales_bill_refer[]
+  t_a_cust                                                t_a_cust?              @relation(fields: [cust], references: [cust], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_SALES__REFERENCE_T_A_CUST234")
+  t_a_personnel_t_sales_debit_check_personTot_a_personnel t_a_personnel?         @relation("t_sales_debit_check_personTot_a_personnel", fields: [check_person], references: [personnel], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_SALES__REFERENCE_T_A_PERS13534")
+  t_a_personnel_t_sales_debit_entry_personTot_a_personnel t_a_personnel?         @relation("t_sales_debit_entry_personTot_a_personnel", fields: [entry_person], references: [personnel], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_SALES__REFERENCE_T_A_PERS235123")
+  t_sales_debit_detail                                    t_sales_debit_detail[]
+  t_sales_debit_refer                                     t_sales_debit_refer[]
+}
+
+model t_sales_debit_detail {
+  id            String        @id(map: "PK_T_SALES_DEBIT_DETAIL") @db.VarChar(50)
+  sales_debit   String        @db.VarChar(20)
+  material_id   String        @db.VarChar(50)
+  quantity      Decimal       @db.Decimal(18, 2)
+  amount        Decimal?      @db.Decimal(18, 2)
+  memo          String?       @db.VarChar(200)
+  unit_price    Decimal?      @db.Decimal(18, 8)
+  t_a_material  t_a_material  @relation(fields: [material_id], references: [material_id], onUpdate: NoAction, map: "FK_T_SALES__REFERENCE_T_A_MATE5656")
+  t_sales_debit t_sales_debit @relation(fields: [sales_debit], references: [sales_debit], onUpdate: NoAction, map: "FK_T_SALES__REFERENCE_T_SALES_61")
+}
+
+model t_sales_debit_refer {
+  id                 BigInt             @default(autoincrement())
+  sales_debit        String             @db.VarChar(20)
+  out_detail         String             @db.VarChar(20)
+  t_sales_debit      t_sales_debit      @relation(fields: [sales_debit], references: [sales_debit], onUpdate: NoAction, map: "FK_T_Banlance_temp_out_sales166")
+  t_stock_out_detail t_stock_out_detail @relation(fields: [out_detail], references: [out_detail], onUpdate: NoAction, map: "FK_T_FK_T_Banlance_temp_out_sales1662")
+
+  @@id([sales_debit, out_detail], map: "PK_T_SALES_DEBIT_REFER")
+}
+
+model t_stock_attach {
+  stock_attach          String                  @id(map: "PK_T_STOCK_ATTACH") @db.VarChar(20)
+  stock                 String                  @db.VarChar(20)
+  type                  String                  @db.VarChar(10)
+  personnel             String                  @db.VarChar(20)
+  date_time             DateTime                @db.DateTime
+  memo                  String?                 @db.VarChar(200)
+  t_a_stock             t_a_stock               @relation(fields: [stock], references: [stock], onUpdate: NoAction, map: "FK_T_STOCK__REFpan_sdfaget")
+  t_a_personnel         t_a_personnel           @relation(fields: [personnel], references: [personnel], onUpdate: NoAction, map: "FK_T_STOCK_pandian_personnel_ref")
+  t_stock_attach_detail t_stock_attach_detail[]
+}
+
+model t_stock_attach_detail {
+  detail_id      String         @id(map: "PK_T_STOCK_ATTACH_DETAIL") @db.VarChar(20)
+  material_id    String         @db.VarChar(50)
+  stock_attach   String         @db.VarChar(20)
+  quantity       Decimal        @db.Decimal(18, 2)
+  t_stock_attach t_stock_attach @relation(fields: [stock_attach], references: [stock_attach], onUpdate: NoAction, map: "FK_T_STOCK_attach_detail_asdfw2")
+  t_a_material   t_a_material   @relation(fields: [material_id], references: [material_id], onUpdate: NoAction, map: "FK_T_stock_attch_detail_mateial_w223")
+}
+
+model t_stock_in {
+  in_id                                                String               @id(map: "PK_T_STOCK_IN") @db.VarChar(20)
+  stock                                                String               @db.VarChar(20)
+  in_person                                            String               @db.VarChar(20)
+  entry_person                                         String               @db.VarChar(20)
+  in_type                                              String?              @db.VarChar(5)
+  purchase_id                                          String?              @db.VarChar(20)
+  out_id                                               String?              @db.VarChar(20)
+  work_bill                                            String?              @db.VarChar(20)
+  invalid_bill                                         String?              @db.VarChar(20)
+  date_time                                            DateTime             @db.DateTime
+  receive_person                                       String?              @db.VarChar(50)
+  memo                                                 String?              @db.VarChar(200)
+  s_status                                             String               @default("未审核", map: "DF__t_stock_i__s_sta__73DA2C14") @db.VarChar(20)
+  dev_bill                                             String?              @db.VarChar(20)
+  in_cust                                              String?              @db.VarChar(20)
+  car_no2                                              String?              @db.VarChar(20)
+  bill_word                                            String               @default("蓝字", map: "DF_t_stock_in_bill_word") @db.VarChar(10)
+  sequence_id                                          BigInt               @default(autoincrement())
+  audit_person                                         String?              @db.VarChar(20)
+  audit_time                                           DateTime?            @db.DateTime
+  batch_no                                             String?              @db.VarChar(20)
+  source_id                                            String?              @db.VarChar(20)
+  t_invalid_bill                                       t_invalid_bill?      @relation(fields: [invalid_bill], references: [invalid_bill], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_invalidbill156")
+  t_stock_in                                           t_stock_in?          @relation("t_stock_inTot_stock_in", fields: [source_id], references: [in_id], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_STCK__RECE_T_STOCK_237")
+  other_t_stock_in                                     t_stock_in[]         @relation("t_stock_inTot_stock_in")
+  t_a_cust                                             t_a_cust?            @relation(fields: [in_cust], references: [cust], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_STOCK___CUST_177")
+  t_a_in_type                                          t_a_in_type?         @relation(fields: [in_type], references: [in_type], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_STOCK__REFERENCE_T_A_IN_T")
+  t_a_personnel_t_stock_in_in_personTot_a_personnel    t_a_personnel        @relation("t_stock_in_in_personTot_a_personnel", fields: [in_person], references: [personnel], onUpdate: NoAction, map: "FK_T_STOCK__REFERENCE_T_A_PERS2")
+  t_a_personnel_t_stock_in_entry_personTot_a_personnel t_a_personnel        @relation("t_stock_in_entry_personTot_a_personnel", fields: [entry_person], references: [personnel], onUpdate: NoAction, map: "FK_T_STOCK__REFERENCE_T_A_PERS43")
+  t_a_stock                                            t_a_stock            @relation(fields: [stock], references: [stock], onUpdate: NoAction, map: "FK_T_STOCK__REFERENCE_T_A_STOC")
+  t_purchase                                           t_purchase?          @relation(fields: [purchase_id], references: [purchase_id], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_STOCK__REFERENCE_T_PURCHA154")
+  t_stock_out_t_stock_in_out_idTot_stock_out           t_stock_out?         @relation("t_stock_in_out_idTot_stock_out", fields: [out_id], references: [out_id], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_STOCK__REFERENCE_T_STOCK_67")
+  t_work_bill                                          t_work_bill?         @relation(fields: [work_bill], references: [work_bill], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_STOCK__REFERENCE_T_WORK_B4532")
+  t_dev_bill                                           t_dev_bill?          @relation(fields: [dev_bill], references: [dev_bill], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_STOCK_IN_DEV_BI")
+  t_stock_in_detail                                    t_stock_in_detail[]
+  t_stock_out_t_stock_out_sales_out_idTot_stock_in     t_stock_out[]        @relation("t_stock_out_sales_out_idTot_stock_in")
+  t_stock_out_t_stock_out_in_idTot_stock_in            t_stock_out[]        @relation("t_stock_out_in_idTot_stock_in")
+  t_stock_out_detail                                   t_stock_out_detail[]
+}
+
+model t_stock_in_detail {
+  in_detail                                                           String                           @id(map: "PK_T_STOCK_IN_DETAIL") @db.VarChar(20)
+  in_id                                                               String                           @db.VarChar(20)
+  purchase_detail_id                                                  String?                          @db.VarChar(20)
+  material_id                                                         String                           @db.VarChar(50)
+  material_no                                                         String?                          @db.VarChar(50)
+  material_name                                                       String?                          @db.VarChar(50)
+  man_address                                                         String?                          @db.VarChar(20)
+  spec                                                                String?                          @db.VarChar(50)
+  unit                                                                String                           @db.VarChar(5)
+  packing                                                             String?                          @db.VarChar(20)
+  pack_spec                                                           Decimal?                         @db.Decimal(18, 2)
+  pack_unit                                                           String?                          @db.VarChar(5)
+  pack_quantity                                                       Decimal?                         @db.Decimal(18, 2)
+  quantity                                                            Decimal                          @db.Decimal(18, 2)
+  memo                                                                String?                          @db.VarChar(200)
+  s_status                                                            String                           @db.VarChar(20)
+  batch_no                                                            String?                          @db.VarChar(20)
+  detail_source_id                                                    String?                          @db.VarChar(20)
+  supplier                                                            String?                          @db.VarChar(20)
+  source_bill_type                                                    String?                          @db.VarChar(20)
+  tech                                                                String?                          @db.VarChar(20)
+  purchase_id                                                         String?                          @db.VarChar(20)
+  batch_id                                                            String?                          @db.VarChar(20)
+  out_detail                                                          String?                          @db.VarChar(20)
+  material_batch_id                                                   String?                          @db.VarChar(50)
+  s_code                                                              String?                          @db.VarChar(50)
+  weight_unit                                                         String?                          @db.VarChar(5)
+  weight_quantity                                                     Decimal?                         @db.Decimal(18, 2)
+  t_r_year_month_purchase_detail                                      t_r_year_month_purchase_detail[]
+  t_stock_in_detail                                                   t_stock_in_detail?               @relation("t_stock_in_detailTot_stock_in_detail", fields: [detail_source_id], references: [in_detail], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_STO__ROCK__248")
+  other_t_stock_in_detail                                             t_stock_in_detail[]              @relation("t_stock_in_detailTot_stock_in_detail")
+  t_a_man_address                                                     t_a_man_address?                 @relation(fields: [man_address], references: [man_address], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_STOCK__REF_T_A_MAN_261")
+  t_stock_out_detail_t_stock_in_detail_out_detailTot_stock_out_detail t_stock_out_detail?              @relation("t_stock_in_detail_out_detailTot_stock_out_detail", fields: [out_detail], references: [out_detail], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_STOCK__REF_T_STOCK_253")
+  t_a_material                                                        t_a_material                     @relation(fields: [material_id], references: [material_id], onUpdate: NoAction, map: "FK_T_STOCK__REFE_T_A_MATE_254")
+  t_purchase_detail                                                   t_purchase_detail?               @relation(fields: [purchase_detail_id], references: [purchase_detail_id], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_STOCK__REFERENCE_T_PURCHA145")
+  t_stock_in                                                          t_stock_in                       @relation(fields: [in_id], references: [in_id], onUpdate: NoAction, map: "FK_T_STOCK__REFERENCE_T_STOCK_26")
+  t_a_supplier                                                        t_a_supplier?                    @relation(fields: [supplier], references: [supplier], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_STOCK__REFET_A_SUPP_243")
+  t_purchase                                                          t_purchase?                      @relation(fields: [purchase_id], references: [purchase_id], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_STOCK__REFET_PURA_247")
+  t_a_tech                                                            t_a_tech?                        @relation(fields: [tech], references: [tech], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_STOCK__REFT_A_TECH_245")
+  t_a_unit                                                            t_a_unit                         @relation(fields: [unit], references: [unit], onUpdate: NoAction, map: "FK_T_STOCK__RENCE_T_A_UNIT_239")
+  t_material_batch                                                    t_material_batch?                @relation(fields: [material_batch_id], references: [material_batch_id], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_STOCK__RETERI_257")
+  t_stock_out_detail_t_stock_out_detail_in_detailTot_stock_in_detail  t_stock_out_detail[]             @relation("t_stock_out_detail_in_detailTot_stock_in_detail")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model t_stock_in_detail_fee {
+  in_detail          String   @db.VarChar(20)
+  in_id              String   @db.VarChar(20)
+  purchase_detail_id String?  @db.VarChar(20)
+  material_id        String   @db.VarChar(50)
+  material_no        String?  @db.VarChar(50)
+  material_name      String?  @db.VarChar(50)
+  man_address        String?  @db.VarChar(20)
+  spec               String?  @db.VarChar(50)
+  unit               String   @db.VarChar(5)
+  packing            String?  @db.VarChar(20)
+  pack_spec          Decimal? @db.Decimal(18, 2)
+  pack_unit          String?  @db.VarChar(5)
+  pack_quantity      Decimal? @db.Decimal(18, 2)
+  quantity           Decimal  @db.Decimal(18, 2)
+  memo               String?  @db.VarChar(200)
+  s_status           String   @db.VarChar(20)
+  batch_no           String?  @db.VarChar(20)
+  detail_source_id   String?  @db.VarChar(20)
+  supplier           String?  @db.VarChar(20)
+  source_bill_type   String?  @db.VarChar(20)
+  tech               String?  @db.VarChar(20)
+  purchase_id        String?  @db.VarChar(20)
+  batch_id           String?  @db.VarChar(20)
+  out_detail         String?  @db.VarChar(20)
+  material_batch_id  String?  @db.VarChar(50)
+  s_code             String?  @db.VarChar(50)
+  weight_unit        String?  @db.VarChar(5)
+  weight_quantity    Decimal? @db.Decimal(18, 2)
+
+  @@ignore
+}
+
+model t_stock_material {
+  stock         String       @db.VarChar(20)
+  material_id   String       @db.VarChar(50)
+  time_quantity Decimal      @db.Decimal(18, 2)
+  quantity      Decimal      @db.Decimal(18, 2)
+  date_time     DateTime     @db.DateTime
+  t_a_material  t_a_material @relation(fields: [material_id], references: [material_id], onUpdate: NoAction, map: "FK_T_STOCK__REFERENCE_T_A_MATE89643")
+  t_a_stock     t_a_stock    @relation(fields: [stock], references: [stock], onUpdate: NoAction, map: "FK_T_STOCK__REFERENCE_T_A_STOC45612")
+
+  @@id([stock, material_id], map: "PK_T_STOCK_MATERIAL")
+}
+
+model t_stock_material_carry_over {
+  year_month     String   @db.VarChar(6)
+  stock          String   @db.VarChar(20)
+  material_id    String   @db.VarChar(50)
+  quantity       Decimal  @db.Decimal(18, 2)
+  material_no    String   @db.VarChar(100)
+  material_name  String   @db.VarChar(50)
+  material_type  String   @db.VarChar(50)
+  unit           String   @db.VarChar(5)
+  caizhi         String?  @db.VarChar(5)
+  spec           String?  @db.VarChar(100)
+  weight         Decimal? @db.Decimal(18, 4)
+  weight_unit    String?  @db.VarChar(5)
+  color          String?  @db.VarChar(10)
+  supplier       String?  @db.VarChar(20)
+  cust           String?  @db.VarChar(20)
+  date_time      DateTime @db.DateTime
+  unit_price     Decimal? @default(0, map: "DF_t_stock_material_carry_over_unit_price") @db.Decimal(18, 8)
+  amount         Decimal  @db.Decimal(18, 2)
+  personnel      String   @db.VarChar(20)
+  material_stock String   @db.VarChar(20)
+  beging_date    DateTime @db.DateTime
+  end_date       DateTime @db.DateTime
+
+  @@id([year_month, stock, material_id], map: "PK_T_STOCK_MATERIAL_CARRY_OVER")
+}
+
+model t_stock_out {
+  out_id                                                String               @id(map: "PK_T_STOCK_OUT") @db.VarChar(20)
+  stock                                                 String               @db.VarChar(20)
+  out_person                                            String               @db.VarChar(20)
+  entry_person                                          String               @db.VarChar(20)
+  out_type                                              String               @db.VarChar(5)
+  cust                                                  String?              @db.VarChar(20)
+  work_bill                                             String?              @db.VarChar(20)
+  attach_bill                                           String?              @db.VarChar(20)
+  request_id                                            String?              @db.VarChar(20)
+  date_time                                             DateTime             @db.DateTime
+  invalid_bill                                          String?              @db.VarChar(20)
+  memo                                                  String?              @db.VarChar(200)
+  s_status                                              String               @default("未审核", map: "DF__t_stock_o__s_sta__72E607DB") @db.VarChar(20)
+  dev_bill                                              String?              @db.VarChar(20)
+  car_no                                                String?              @db.VarChar(50)
+  out_date                                              DateTime?            @db.Date
+  sales_out_id                                          String?              @db.VarChar(20)
+  sales_in_id                                           String?              @db.VarChar(20)
+  normal_loss                                           String?              @db.VarChar(20)
+  bill_word                                             String?              @db.VarChar(20)
+  audit_person                                          String?              @db.VarChar(20)
+  audit_time                                            DateTime?            @db.DateTime
+  purchase_id                                           String?              @db.VarChar(20)
+  in_id                                                 String?              @db.VarChar(20)
+  source_id                                             String?              @db.VarChar(20)
+  bill_in_type                                          String?              @db.VarChar(5)
+  batch_no                                              String?              @db.VarChar(20)
+  sum_non_tax_amount                                    Decimal?             @default(0, map: "DF_t_stock_out_sum_non_tax_amount") @db.Decimal(18, 2)
+  sum_amount                                            Decimal?             @default(0, map: "DF_t_stock_out_sum_amount") @db.Decimal(18, 2)
+  sum_rate_amount                                       Decimal?             @db.Decimal(18, 2)
+  cust_receive_person                                   String?              @db.VarChar(50)
+  cust_address                                          String?              @db.VarChar(50)
+  t_stock_in_t_stock_in_out_idTot_stock_out             t_stock_in[]         @relation("t_stock_in_out_idTot_stock_out")
+  t_invalid_bill                                        t_invalid_bill?      @relation(fields: [invalid_bill], references: [invalid_bill], onDelete: NoAction, onUpdate: NoAction, map: "FK_invalid300")
+  t_material_request                                    t_material_request?  @relation(fields: [request_id], references: [request_id], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_Reference_153")
+  t_a_in_type                                           t_a_in_type?         @relation(fields: [bill_in_type], references: [in_type], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_SK_RCE_T_A_IN_T_238")
+  t_a_personnel_t_stock_out_entry_personTot_a_personnel t_a_personnel        @relation("t_stock_out_entry_personTot_a_personnel", fields: [entry_person], references: [personnel], onUpdate: NoAction, map: "FK_T_STOCK__REFCE_T_A_PERS3423")
+  t_a_cust                                              t_a_cust?            @relation(fields: [cust], references: [cust], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_STOCK__REFERENCE_T_A_CUST")
+  t_a_out_type                                          t_a_out_type         @relation(fields: [out_type], references: [out_type], onUpdate: NoAction, map: "FK_T_STOCK__REFERENCE_T_A_OUT_")
+  t_a_personnel_t_stock_out_out_personTot_a_personnel   t_a_personnel        @relation("t_stock_out_out_personTot_a_personnel", fields: [out_person], references: [personnel], onUpdate: NoAction, map: "FK_T_STOCK__REFERENCE_T_A_PERS5646")
+  t_a_stock                                             t_a_stock            @relation(fields: [stock], references: [stock], onUpdate: NoAction, map: "FK_T_STOCK__REFERENCE_T_A_STOC354")
+  t_work_bill                                           t_work_bill?         @relation(fields: [work_bill], references: [work_bill], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_STOCK__REFERENCE_T_WORK_B5")
+  t_work_bill_attach                                    t_work_bill_attach?  @relation(fields: [attach_bill], references: [attach_bill], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_STOCK__REFERENCE_T_WORK_B7")
+  t_stock_in_t_stock_out_sales_out_idTot_stock_in       t_stock_in?          @relation("t_stock_out_sales_out_idTot_stock_in", fields: [sales_out_id], references: [in_id], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_STOCK_in_out_174")
+  t_dev_bill                                            t_dev_bill?          @relation(fields: [dev_bill], references: [dev_bill], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_STOCK_out_DEV_BI161")
+  t_purchase                                            t_purchase?          @relation(fields: [purchase_id], references: [purchase_id], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_STOCK_RE_T_PURCHA_233")
+  t_stock_in_t_stock_out_in_idTot_stock_in              t_stock_in?          @relation("t_stock_out_in_idTot_stock_in", fields: [in_id], references: [in_id], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_STOK__REF_T_STOCK_236")
+  t_stock_out_detail                                    t_stock_out_detail[]
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model t_stock_out_bd {
+  out_id              String    @db.VarChar(20)
+  stock               String    @db.VarChar(20)
+  out_person          String    @db.VarChar(20)
+  entry_person        String    @db.VarChar(20)
+  out_type            String    @db.VarChar(5)
+  cust                String?   @db.VarChar(20)
+  work_bill           String?   @db.VarChar(20)
+  attach_bill         String?   @db.VarChar(20)
+  request_id          String?   @db.VarChar(20)
+  date_time           DateTime  @db.DateTime
+  invalid_bill        String?   @db.VarChar(20)
+  memo                String?   @db.VarChar(200)
+  s_status            String    @db.VarChar(20)
+  dev_bill            String?   @db.VarChar(20)
+  car_no              String?   @db.VarChar(50)
+  out_date            DateTime? @db.Date
+  sales_out_id        String?   @db.VarChar(20)
+  sales_in_id         String?   @db.VarChar(20)
+  normal_loss         String?   @db.VarChar(20)
+  bill_word           String?   @db.VarChar(20)
+  audit_person        String?   @db.VarChar(20)
+  audit_time          DateTime? @db.DateTime
+  purchase_id         String?   @db.VarChar(20)
+  in_id               String?   @db.VarChar(20)
+  source_id           String?   @db.VarChar(20)
+  bill_in_type        String?   @db.VarChar(5)
+  batch_no            String?   @db.VarChar(20)
+  sum_non_tax_amount  Decimal?  @db.Decimal(18, 2)
+  sum_amount          Decimal?  @db.Decimal(18, 2)
+  sum_rate_amount     Decimal?  @db.Decimal(18, 2)
+  cust_receive_person String?   @db.VarChar(50)
+  cust_address        String?   @db.VarChar(50)
+
+  @@ignore
+}
+
+model t_stock_out_detail {
+  out_detail                                                             String                @id(map: "PK_T_STOCK_OUT_DETAIL") @db.VarChar(20)
+  out_id                                                                 String                @db.VarChar(20)
+  material_id                                                            String?               @db.VarChar(50)
+  material_no                                                            String?               @db.VarChar(50)
+  material_name                                                          String?               @db.VarChar(50)
+  spec                                                                   String?               @db.VarChar(50)
+  man_address                                                            String?               @db.VarChar(20)
+  unit                                                                   String                @db.VarChar(5)
+  packing                                                                String?               @db.VarChar(20)
+  pack_spec                                                              Decimal?              @db.Decimal(18, 4)
+  pack_unit                                                              String?               @db.VarChar(5)
+  pack_quantity                                                          Decimal?              @db.Decimal(18, 2)
+  quantity                                                               Decimal               @db.Decimal(18, 2)
+  lend_quantity                                                          Decimal?              @default(0, map: "DF_t_stock_out_detail_lend_quantity") @db.Decimal(18, 2)
+  memo                                                                   String?               @db.VarChar(200)
+  s_status                                                               String?               @db.VarChar(20)
+  in_detail                                                              String?               @db.VarChar(20)
+  in_id                                                                  String?               @db.VarChar(20)
+  detail_source_id                                                       String?               @db.VarChar(20)
+  supplier                                                               String?               @db.VarChar(20)
+  batch_no                                                               String?               @db.VarChar(20)
+  source_bill_type                                                       String?               @db.VarChar(20)
+  batch_id                                                               String?               @db.VarChar(20)
+  tech                                                                   String?               @db.VarChar(20)
+  non_tax_price                                                          Decimal?              @default(0, map: "DF_t_stock_out_detail_non_tax_price") @db.Decimal(18, 8)
+  unit_price                                                             Decimal?              @default(0, map: "DF_t_stock_out_detail_unit_price") @db.Decimal(18, 8)
+  rate                                                                   Decimal?              @default(0, map: "DF_t_stock_out_detail_rate") @db.Decimal(18, 2)
+  non_tax_amount                                                         Decimal?              @default(0, map: "DF_t_stock_out_detail_non_tax_amount") @db.Decimal(18, 2)
+  amount                                                                 Decimal?              @default(0, map: "DF_t_stock_out_detail_amount") @db.Decimal(18, 2)
+  rate_amount                                                            Decimal?              @db.Decimal(18, 2)
+  material_batch_id                                                      String?               @db.VarChar(50)
+  price_unit                                                             String?               @db.VarChar(5)
+  payed_amount                                                           Decimal?              @db.Decimal(18, 2)
+  s_code                                                                 String?               @db.VarChar(50)
+  transport_fee                                                          Decimal?              @db.Decimal(18, 2)
+  pack_fee                                                               Decimal?              @db.Decimal(18, 2)
+  t_sales_debit_refer                                                    t_sales_debit_refer[]
+  t_stock_in_detail_t_stock_in_detail_out_detailTot_stock_out_detail     t_stock_in_detail[]   @relation("t_stock_in_detail_out_detailTot_stock_out_detail")
+  t_stock_out_detail                                                     t_stock_out_detail?   @relation("t_stock_out_detailTot_stock_out_detail", fields: [detail_source_id], references: [out_detail], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_STK__REE_T_STCK__249")
+  other_t_stock_out_detail                                               t_stock_out_detail[]  @relation("t_stock_out_detailTot_stock_out_detail")
+  t_a_man_address                                                        t_a_man_address?      @relation(fields: [man_address], references: [man_address], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_STOCK__REF_A_MAN_262")
+  t_a_unit_t_stock_out_detail_unitTot_a_unit                             t_a_unit              @relation("t_stock_out_detail_unitTot_a_unit", fields: [unit], references: [unit], onUpdate: NoAction, map: "FK_T_STOCK__REFCE_T_A_UNIT_240")
+  t_stock_out                                                            t_stock_out           @relation(fields: [out_id], references: [out_id], onUpdate: NoAction, map: "FK_T_STOCK__REFERENCE_T_STOCK_235")
+  t_material_batch                                                       t_material_batch?     @relation(fields: [material_batch_id], references: [material_batch_id], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_STOCK__REFERI_258")
+  t_a_unit_t_stock_out_detail_price_unitTot_a_unit                       t_a_unit?             @relation("t_stock_out_detail_price_unitTot_a_unit", fields: [price_unit], references: [unit], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_STOCK_CE_T_A_UNIT_259")
+  t_stock_in_detail_t_stock_out_detail_in_detailTot_stock_in_detail      t_stock_in_detail?    @relation("t_stock_out_detail_in_detailTot_stock_in_detail", fields: [in_detail], references: [in_detail], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_STOCK_REFCE_T_STOCK_234")
+  t_stock_in                                                             t_stock_in?           @relation(fields: [in_id], references: [in_id], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_STOK__REFCE_T_STOCK_235")
+  t_temp_out_devide_t_temp_out_devide_out_detailTot_stock_out_detail     t_temp_out_devide[]   @relation("t_temp_out_devide_out_detailTot_stock_out_detail")
+  t_temp_out_devide_t_temp_out_devide_new_out_detailTot_stock_out_detail t_temp_out_devide[]   @relation("t_temp_out_devide_new_out_detailTot_stock_out_detail")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model t_stock_out_detail_bd {
+  out_detail        String   @db.VarChar(20)
+  out_id            String   @db.VarChar(20)
+  material_id       String?  @db.VarChar(50)
+  material_no       String?  @db.VarChar(50)
+  material_name     String?  @db.VarChar(50)
+  spec              String?  @db.VarChar(50)
+  man_address       String?  @db.VarChar(20)
+  unit              String   @db.VarChar(5)
+  packing           String?  @db.VarChar(20)
+  pack_spec         Decimal? @db.Decimal(18, 4)
+  pack_unit         String?  @db.VarChar(5)
+  pack_quantity     Decimal? @db.Decimal(18, 2)
+  quantity          Decimal  @db.Decimal(18, 2)
+  lend_quantity     Decimal? @db.Decimal(18, 2)
+  memo              String?  @db.VarChar(200)
+  s_status          String?  @db.VarChar(20)
+  in_detail         String?  @db.VarChar(20)
+  in_id             String?  @db.VarChar(20)
+  detail_source_id  String?  @db.VarChar(20)
+  supplier          String?  @db.VarChar(20)
+  batch_no          String?  @db.VarChar(20)
+  source_bill_type  String?  @db.VarChar(20)
+  batch_id          String?  @db.VarChar(20)
+  tech              String?  @db.VarChar(20)
+  non_tax_price     Decimal? @db.Decimal(18, 8)
+  unit_price        Decimal? @db.Decimal(18, 8)
+  rate              Decimal? @db.Decimal(18, 2)
+  non_tax_amount    Decimal? @db.Decimal(18, 2)
+  amount            Decimal? @db.Decimal(18, 2)
+  rate_amount       Decimal? @db.Decimal(18, 2)
+  material_batch_id String?  @db.VarChar(50)
+  price_unit        String?  @db.VarChar(5)
+  payed_amount      Decimal? @db.Decimal(18, 2)
+
+  @@ignore
+}
+
+model t_temp_out_devide {
+  out_detail                                                              String             @db.VarChar(20)
+  new_out_detail                                                          String             @db.VarChar(20)
+  old_quantity                                                            Decimal            @db.Decimal(18, 2)
+  t_stock_out_detail_t_temp_out_devide_out_detailTot_stock_out_detail     t_stock_out_detail @relation("t_temp_out_devide_out_detailTot_stock_out_detail", fields: [out_detail], references: [out_detail], onUpdate: NoAction, map: "FK_T_devide_temp_out_168")
+  t_stock_out_detail_t_temp_out_devide_new_out_detailTot_stock_out_detail t_stock_out_detail @relation("t_temp_out_devide_new_out_detailTot_stock_out_detail", fields: [new_out_detail], references: [out_detail], onUpdate: NoAction, map: "FK_T_FK_T_devide_temp_out_169")
+
+  @@id([out_detail, new_out_detail], map: "PK_T_TEMP_OUT_DEVIDE")
+}
+
+model t_topic {
+  topic          String           @id(map: "PK_T_TOPIC") @db.VarChar(20)
+  personnel      String?          @db.VarChar(20)
+  caption        String           @db.VarChar(200)
+  content        String           @db.VarChar(Max)
+  date_time      DateTime         @db.DateTime
+  s_status       String           @db.VarChar(20)
+  t_a_personnel  t_a_personnel?   @relation(fields: [personnel], references: [personnel], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_TOPIC_REFERENCE_T_A_PERS")
+  t_topic_detail t_topic_detail[]
+}
+
+model t_topic_detail {
+  detail        String        @id(map: "PK_T_TOPIC_DETAIL") @db.VarChar(32)
+  topic         String        @db.VarChar(20)
+  coment_person String        @db.VarChar(20)
+  content       String        @db.VarChar(Max)
+  date_time     DateTime      @db.DateTime
+  is_use        Boolean
+  t_a_personnel t_a_personnel @relation(fields: [coment_person], references: [personnel], onUpdate: NoAction, map: "FK_T_TOPIC__REFERENCE_T_A_PERS")
+  t_topic       t_topic       @relation(fields: [topic], references: [topic], onUpdate: NoAction, map: "FK_T_TOPIC__REFERENCE_T_TOPIC")
+}
+
+model t_usergroup {
+  id                   String                 @id(map: "PK_T_USERGROUP") @db.VarChar(20)
+  fk_tenant            String?                @db.VarChar(20)
+  fk_system            String?                @db.VarChar(20)
+  group_id             String?                @db.VarChar(50)
+  group_name           String?                @db.VarChar(50)
+  description          String?                @db.VarChar(200)
+  group_status         Int?                   @db.TinyInt
+  is_global            Boolean?
+  t_a_group_data_value t_a_group_data_value[]
+  t_a_group_user       t_a_group_user[]       @ignore
+}
+
+model t_work_bill {
+  work_bill                                             String                    @id(map: "PK_T_WORK_BILL") @db.VarChar(20)
+  schedule_quantity                                     BigInt
+  schedule_bad_rate                                     Decimal                   @db.Decimal(18, 4)
+  schedule_left_weight                                  Decimal                   @db.Decimal(18, 2)
+  work_bill_type                                        String                    @db.VarChar(20)
+  is_control_quantity                                   Boolean
+  entry_person                                          String                    @db.VarChar(20)
+  end_person                                            String?                   @db.VarChar(20)
+  material_id                                           String                    @db.VarChar(50)
+  bom_id                                                String                    @db.VarChar(20)
+  weight                                                Decimal?                  @db.Decimal(18, 4)
+  s_status                                              String                    @db.VarChar(20)
+  date_time                                             DateTime                  @db.DateTime
+  end_time                                              DateTime?                 @db.DateTime
+  request_time                                          DateTime?                 @db.DateTime
+  memo                                                  String?                   @db.VarChar(200)
+  bad_number                                            Decimal?                  @db.Decimal(18, 2)
+  schedule_bad_quantity                                 Decimal?                  @db.Decimal(18, 2)
+  r_in_quantity                                         Decimal?                  @db.Decimal(18, 2)
+  r_bill_salary                                         Decimal?                  @db.Decimal(18, 2)
+  r_bad_rate                                            Decimal?                  @db.Decimal(18, 4)
+  r_material_profit                                     Decimal?                  @db.Decimal(18, 2)
+  r_fee_profit                                          Decimal?                  @db.Decimal(18, 2)
+  r_quantity_profit                                     Decimal?                  @db.Decimal(18, 2)
+  r_left_profit                                         Decimal?                  @db.Decimal(18, 2)
+  r_left_weight                                         Decimal?                  @db.Decimal(18, 2)
+  r_bill_cost                                           Decimal?                  @db.Decimal(18, 4)
+  r_unit_cost                                           Decimal?                  @db.Decimal(18, 4)
+  r_guanli_cost                                         Decimal?                  @default(0, map: "DF_t_work_bill_r_guanli_cost") @db.Decimal(18, 2)
+  r_laliao_cost                                         Decimal?                  @default(0, map: "DF_t_work_bill_r_laliao_cost") @db.Decimal(18, 2)
+  r_xck_cost                                            Decimal?                  @default(0, map: "DF_t_work_bill_r_xck_cost") @db.Decimal(18, 2)
+  r_dian_cost                                           Decimal?                  @default(0, map: "DF_t_work_bill_r_dian_cost") @db.Decimal(18, 2)
+  r_product_sum_weight                                  Decimal?                  @db.Decimal(18, 2)
+  is_created                                            Boolean?                  @default(false, map: "DF_t_work_bill_is_created")
+  r_in_amount                                           Decimal?                  @db.Decimal(18, 2)
+  r_material_amount_sum                                 Decimal?                  @db.Decimal(18, 2)
+  sum_fee                                               Decimal?                  @db.Decimal(18, 2)
+  theory_price                                          Decimal?                  @default(0.0000, map: "DF_t_work_bill_theory_price") @db.Decimal(18, 8)
+  t_material_request                                    t_material_request[]
+  t_stock_in                                            t_stock_in[]
+  t_stock_out                                           t_stock_out[]
+  t_a_work_bill_type                                    t_a_work_bill_type        @relation(fields: [work_bill_type], references: [work_bill_type], onUpdate: NoAction, map: "FK__A_WORK_biil_type_f")
+  t_a_bom                                               t_a_bom                   @relation(fields: [bom_id], references: [bom_id], onUpdate: NoAction, map: "FK_T_bill_bom097")
+  t_a_personnel_t_work_bill_entry_personTot_a_personnel t_a_personnel             @relation("t_work_bill_entry_personTot_a_personnel", fields: [entry_person], references: [personnel], onUpdate: NoAction, map: "FK_T_WORK_B_REFERENCE_T_A_PERS1235")
+  t_a_personnel_t_work_bill_end_personTot_a_personnel   t_a_personnel?            @relation("t_work_bill_end_personTot_a_personnel", fields: [end_person], references: [personnel], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_WORK_B_REFERENCE_T_A_PERS56145")
+  t_work_bill_attach                                    t_work_bill_attach[]
+  t_work_bill_attach_used                               t_work_bill_attach_used[]
+  t_work_bill_result                                    t_work_bill_result?
+  t_work_bill_salary                                    t_work_bill_salary[]
+}
+
+model t_work_bill_attach {
+  attach_bill                                                    String                        @id(map: "PK_T_WORK_BILL_ATTACH") @db.VarChar(20)
+  work_bill                                                      String                        @db.VarChar(20)
+  entry_person                                                   String                        @db.VarChar(20)
+  request_person                                                 String?                       @db.VarChar(20)
+  memo                                                           String?                       @db.VarChar(200)
+  date_time                                                      DateTime                      @db.DateTime
+  request_time                                                   DateTime                      @db.DateTime
+  quanlity_comment                                               String?                       @db.VarChar(Max)
+  shengchan_comment                                              String?                       @db.VarChar(Max)
+  gongcheng_comment                                              String?                       @db.VarChar(Max)
+  zonglun_comment                                                String?                       @db.VarChar(Max)
+  s_status                                                       String                        @db.VarChar(20)
+  t_stock_out                                                    t_stock_out[]
+  t_a_personnel_t_work_bill_attach_request_personTot_a_personnel t_a_personnel?                @relation("t_work_bill_attach_request_personTot_a_personnel", fields: [request_person], references: [personnel], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_WORK_B_REFERENCE_T_A_PERS23463")
+  t_a_personnel_t_work_bill_attach_entry_personTot_a_personnel   t_a_personnel                 @relation("t_work_bill_attach_entry_personTot_a_personnel", fields: [entry_person], references: [personnel], onUpdate: NoAction, map: "FK_T_WORK_B_REFERENCE_T_A_PERS77")
+  t_work_bill                                                    t_work_bill                   @relation(fields: [work_bill], references: [work_bill], onUpdate: NoAction, map: "FK_T_WORK_B_REFERENCE_T_WORK_B55666")
+  t_work_bill_attach_comment                                     t_work_bill_attach_comment[]
+  t_work_bill_attach_material                                    t_work_bill_attach_material[]
+}
+
+model t_work_bill_attach_comment {
+  comment_id         BigInt             @id(map: "PK_T_WORK_BILL_ATTACH_COMMENT") @default(autoincrement())
+  attach_bill        String             @db.VarChar(20)
+  personnel          String?            @db.VarChar(20)
+  dept               String?            @db.VarChar(20)
+  post_id            String?            @db.VarChar(20)
+  comment            String?            @db.VarChar(Max)
+  t_a_personnel      t_a_personnel?     @relation(fields: [personnel], references: [personnel], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_WORK_B_REFERENCE_T_A_PERS")
+  t_a_dept           t_a_dept?          @relation(fields: [dept], references: [dept], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_WORK_Bill_DEPT_refjflf")
+  t_a_role           t_a_role?          @relation(fields: [post_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_T_WORK_Bill_REFERENCE_T_A_ROLE34634")
+  t_work_bill_attach t_work_bill_attach @relation(fields: [attach_bill], references: [attach_bill], onUpdate: NoAction, map: "FK_T_WORK_Bill_WORK_B_commentferf2323")
+}
+
+model t_work_bill_attach_material {
+  attach_bill        String             @db.VarChar(20)
+  material_id        String             @db.VarChar(20)
+  quantity           Decimal            @db.Decimal(18, 2)
+  memo               String?            @db.VarChar(200)
+  t_work_bill_attach t_work_bill_attach @relation(fields: [attach_bill], references: [attach_bill], onUpdate: NoAction, map: "FK_T_WORK_B_REFERENCE_T_WORK_B34634")
+
+  @@id([attach_bill, material_id], map: "PK_T_WORK_BILL_ATTACH_MATERIAL")
+}
+
+model t_work_bill_attach_used {
+  work_bill         String       @db.VarChar(20)
+  material_id       String       @db.VarChar(50)
+  schedule_quantity Decimal      @db.Decimal(18, 2)
+  used_quantity     Decimal?     @db.Decimal(18, 2)
+  material_cost     Decimal?     @db.Decimal(18, 4)
+  material_amount   Decimal?     @db.Decimal(18, 2)
+  t_a_material      t_a_material @relation(fields: [material_id], references: [material_id], onUpdate: NoAction, map: "FK_T_attch_mateial_used_Reference_176")
+  t_work_bill       t_work_bill  @relation(fields: [work_bill], references: [work_bill], onUpdate: NoAction, map: "FK_T_WORK_MATERIAL_ALO_OUT175")
+
+  @@id([work_bill, material_id], map: "PK_T_WORK_BILL_ATTACH_USED")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model t_work_bill_bak {
+  work_bill             String    @db.VarChar(20)
+  schedule_quantity     BigInt
+  schedule_bad_rate     Decimal   @db.Decimal(18, 4)
+  schedule_left_weight  Decimal   @db.Decimal(18, 2)
+  work_bill_type        String    @db.VarChar(5)
+  is_control_quantity   Boolean
+  entry_person          String    @db.VarChar(20)
+  end_person            String?   @db.VarChar(20)
+  material_id           String    @db.VarChar(50)
+  bom_id                String    @db.VarChar(20)
+  weight                Decimal?  @db.Decimal(18, 4)
+  s_status              String    @db.VarChar(20)
+  date_time             DateTime  @db.DateTime
+  end_time              DateTime? @db.DateTime
+  request_time          DateTime? @db.DateTime
+  memo                  String?   @db.VarChar(200)
+  bad_number            Decimal?  @db.Decimal(18, 2)
+  schedule_bad_quantity Decimal?  @db.Decimal(18, 2)
+  r_in_quantity         Decimal?  @db.Decimal(18, 2)
+  r_bill_salary         Decimal?  @db.Decimal(18, 2)
+  r_bad_rate            Decimal?  @db.Decimal(18, 4)
+  r_material_profit     Decimal?  @db.Decimal(18, 2)
+  r_fee_profit          Decimal?  @db.Decimal(18, 2)
+  r_quantity_profit     Decimal?  @db.Decimal(18, 2)
+  r_left_profit         Decimal?  @db.Decimal(18, 2)
+  r_left_weight         Decimal?  @db.Decimal(18, 2)
+  r_bill_cost           Decimal?  @db.Decimal(18, 4)
+  r_unit_cost           Decimal?  @db.Decimal(18, 4)
+  r_guanli_cost         Decimal?  @db.Decimal(18, 2)
+  r_laliao_cost         Decimal?  @db.Decimal(18, 2)
+  r_xck_cost            Decimal?  @db.Decimal(18, 2)
+  r_dian_cost           Decimal?  @db.Decimal(18, 2)
+  r_product_sum_weight  Decimal?  @db.Decimal(18, 2)
+  is_created            Boolean?
+  r_in_amount           Decimal?  @db.Decimal(18, 2)
+  r_material_amount_sum Decimal?  @db.Decimal(18, 2)
+  sum_fee               Decimal?  @db.Decimal(18, 2)
+
+  @@ignore
+}
+
+model t_work_bill_material {
+  work_bill          String   @db.VarChar(20)
+  material_id        String   @db.VarChar(50)
+  quantity           Decimal  @db.Decimal(18, 2)
+  lend_quantity      Decimal? @default(0, map: "DF_t_work_bill_material_lend_quantity") @db.Decimal(18, 2)
+  work_bill_detail   BigInt?
+  r_used_quantity    Decimal? @db.Decimal(18, 2)
+  r_material_cost    Decimal? @db.Decimal(18, 4)
+  r_material_amount  Decimal? @db.Decimal(18, 2)
+  c_material_quantiy Decimal? @db.Decimal(18, 2)
+
+  @@id([work_bill, material_id], map: "PK_T_WORK_BILL_MATERIAL")
+}
+
+model t_work_bill_result {
+  work_bill       String      @id(map: "PK_T_WORK_BILL_RESULT") @db.VarChar(20)
+  in_quantity     Decimal     @db.Decimal(18, 2)
+  bad_rate        Decimal     @db.Decimal(18, 4)
+  material_profit Decimal     @db.Decimal(18, 2)
+  fee_profit      Decimal     @db.Decimal(18, 2)
+  quantity_profit Decimal     @db.Decimal(18, 2)
+  left_profit     Decimal     @db.Decimal(18, 2)
+  left_weight     Decimal     @db.Decimal(18, 2)
+  bill_cost       Decimal     @db.Decimal(18, 4)
+  unit_cost       Decimal     @db.Decimal(18, 4)
+  t_work_bill     t_work_bill @relation(fields: [work_bill], references: [work_bill], onUpdate: NoAction, map: "FK_T_WORK_B_REFERENCE_T_WORK_B555")
+}
+
+model t_work_bill_salary {
+  personnel     String        @db.VarChar(20)
+  work_bill     String        @db.VarChar(20)
+  work_order    String        @db.VarChar(5)
+  work_date     DateTime      @db.Date
+  amount        Decimal       @db.Decimal(18, 2)
+  memo          String?       @db.VarChar(200)
+  entry_person  String        @db.VarChar(20)
+  date_time     DateTime      @db.DateTime
+  t_a_personnel t_a_personnel @relation(fields: [personnel], references: [personnel], onUpdate: NoAction, map: "FK_T_WORK_B_REFERENCE_T_A_PERS2353")
+  t_work_bill   t_work_bill   @relation(fields: [work_bill], references: [work_bill], onUpdate: NoAction, map: "FK_T_WORK_B_REFERENCE_T_WORK_B1345")
+  t_work_order  t_work_order  @relation(fields: [work_order], references: [work_order], onUpdate: NoAction, map: "FK_T_WORK_B_REFERENCE_T_WORK_O")
+
+  @@id([personnel, work_bill, work_order, work_date], map: "PK_T_WORK_BILL_SALARY")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model t_work_bill_tmp {
+  work_bill String?  @db.VarChar(50)
+  quantity  Decimal? @db.Decimal(18, 2)
+
+  @@ignore
+}
+
+model t_work_bill_type_salary {
+  year_month    String   @db.VarChar(6)
+  dept          String   @db.VarChar(20)
+  salary        Decimal  @db.Decimal(18, 2)
+  entry_person  String   @db.VarChar(20)
+  entry_date    DateTime @db.DateTime
+  social_amount Decimal? @default(0, map: "DF_t_work_bill_type_salary_social_amount") @db.Decimal(18, 2)
+  public_amount Decimal? @default(0, map: "DF_t_work_bill_type_salary_public_amount") @db.Decimal(18, 2)
+
+  @@id([year_month, dept], map: "PK_T_WORK_BILL_TYPE_SALARY")
+}
+
+model t_work_order {
+  work_order         String               @id(map: "PK_T_WORK_ORDER") @db.VarChar(5)
+  work_order_name    String               @db.VarChar(20)
+  t_work_bill_salary t_work_bill_salary[]
+}
+
+model T1 {
+  col1 Int @id(map: "PK__T1__357D0D3E7BBB44FE")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model yingshouzhangkuan {
+/// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+// 序号 Float? @map("序号")
+/// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+// 客户名 String? @map("客户名") @db.NVarChar(255)
+/// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+// 金额 Float? @map("金额") @db.Money
+/// This field was commented out because of an invalid name. Please provide a valid one that matches [a-zA-Z][a-zA-Z0-9_]*
+// 备注 String? @map("备注") @db.NVarChar(255)
+ID String? @db.NVarChar(255)
+@@map("应收账款")
+@@ignore
+}
