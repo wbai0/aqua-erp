@@ -1,24 +1,22 @@
-import type { NextFunction, Request, Response } from "express";
+export interface DatabaseIdentity {
+  isLocal: boolean;
+  label: string;
+}
 
-export function isLocalReplica(): boolean {
-  const connectionString = process.env.CLOUD_DATABASE_URL;
-  if (!connectionString) return false;
+export function describeSqlServerDatabase(connectionString: string | undefined): DatabaseIdentity {
+  if (!connectionString) return { isLocal: false, label: "UNKNOWN" };
   // Prisma SQL Server 使用 `sqlserver://host:port;database=...`，它不是标准 URL，
-  // 因此只解析第一个分号前的 authority，不能用字符串 contains 判断。
-  const match = connectionString.match(/^sqlserver:\/\/([^;/?#]+)/i);
-  if (!match) return false;
-  const hostPort = match[1].split("@").pop()!.toLowerCase();
+  // 因此分别解析 authority 和分号参数，且绝不向调用方返回凭据。
+  const authorityMatch = connectionString.match(/^sqlserver:\/\/([^;/?#]+)/i);
+  const databaseMatch = connectionString.match(/(?:^|;)database=([^;]+)/i);
+  if (!authorityMatch) return { isLocal: false, label: databaseMatch?.[1].trim() || "UNKNOWN" };
+  const hostPort = authorityMatch[1].split("@").pop()!.toLowerCase();
   const hostname = hostPort.startsWith("[")
     ? hostPort.slice(0, hostPort.indexOf("]") + 1)
     : hostPort.split(":")[0];
-  return hostname === "localhost" || hostname === "127.0.0.1" || hostname === "[::1]";
-}
-
-/**
- * cloud 模式统一写入保护。
- * 登录接口不经过此中间件；其余业务 API 只有连接本地副本时才允许非只读请求。
- */
-export function requireLocalReplicaWrite(req: Request, res: Response, next: NextFunction) {
-  if (["GET", "HEAD", "OPTIONS"].includes(req.method) || isLocalReplica()) return next();
-  return res.status(403).json({ error: "远端数据库为只读 — 请切换到本地副本后再执行写入操作" });
+  const isLocal = hostname === "localhost" || hostname === "127.0.0.1" || hostname === "[::1]";
+  return {
+    isLocal,
+    label: isLocal ? "LOCAL" : databaseMatch?.[1].trim() || hostname || "REMOTE",
+  };
 }

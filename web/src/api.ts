@@ -6,6 +6,15 @@ export interface AuthUser {
   roles: string[];
 }
 
+export interface HealthInfo {
+  ok: boolean;
+  mode: "cloud" | "local";
+  database: {
+    isLocal: boolean;
+    label: string;
+  };
+}
+
 export function getToken(): string | null {
   return localStorage.getItem("token");
 }
@@ -87,7 +96,13 @@ export interface DocLine {
   origin?: string | null;
   quantity: number | string;
   unit: string;
+  unitId?: string;
+  spec?: string | null;
+  packQuantity?: number | string | null;
+  packUnit?: string | null;
+  tech?: string | null;
   weight?: number | string | null;
+  weightUnit?: string | null;
   packaging?: string | null;
   note?: string | null;
 }
@@ -118,10 +133,20 @@ export interface StockRow {
   materialCode: string;
   materialName: string;
   category: string;
+  categoryName?: string;
+  shortName?: string;
   unit: string;
+  supplier?: string | null;
+  supplierName?: string;
+  origin: string | null;
+  moisture?: string;
+  packSpec?: number | null;
+  packUnit?: string;
+  packQty?: number | null;
   batchNo: string | null;
   retrievalCode: string | null;
-  origin: string | null;
+  inQuantity?: number;
+  outQuantity?: number;
   quantity: number;
 }
 
