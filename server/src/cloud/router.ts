@@ -396,6 +396,71 @@ cloudDocumentsRouter.get("/:id", async (req, res) => {
 // registerWriteRoutes(cloudDocumentsRouter);
 void registerWriteRoutes; // 保留导入引用，避免未使用告警
 
+// ---------- 工作台聚合(只读): 分类库存 / 今日与本周动态 / 在库品种数 ----------
+export const cloudDashboardRouter = Router();
+
+cloudDashboardRouter.get("/", async (_req, res) => {
+  const uNames = await unitNames();
+  const [catRows, skuRows, todayIn, todayOut, weekIn, weekOut] = await Promise.all([
+    db.$queryRaw<any[]>(S`
+      WITH mv AS (
+        SELECT d.material_id, d.unit, CAST(d.quantity AS decimal(38,4)) AS qin, CAST(0 AS decimal(38,4)) AS qout
+        FROM t_stock_in h INNER JOIN t_stock_in_detail d ON d.in_id = h.in_id
+        UNION ALL
+        SELECT d.material_id, d.unit, CAST(0 AS decimal(38,4)), CAST(d.quantity AS decimal(38,4))
+        FROM t_stock_out h INNER JOIN t_stock_out_detail d ON d.out_id = h.out_id
+      )
+      SELECT m.material_type, mt.material_type_name, mv.unit, SUM(mv.qin - mv.qout) AS qty
+      FROM mv
+      LEFT JOIN t_a_material m ON m.material_id = mv.material_id
+      LEFT JOIN t_a_material_type mt ON mt.material_type = m.material_type
+      GROUP BY m.material_type, mt.material_type_name, mv.unit
+      HAVING SUM(mv.qin - mv.qout) <> 0`),
+    db.$queryRaw<any[]>(S`
+      WITH mv AS (
+        SELECT d.material_id, CAST(d.quantity AS decimal(38,4)) AS q FROM t_stock_in_detail d
+        UNION ALL
+        SELECT d.material_id, CAST(-d.quantity AS decimal(38,4)) FROM t_stock_out_detail d
+      )
+      SELECT COUNT(*) AS c FROM (
+        SELECT material_id FROM mv GROUP BY material_id HAVING SUM(q) <> 0
+      ) x`),
+    db.$queryRaw<any[]>(S`
+      SELECT COUNT(DISTINCT h.in_id) AS c, ISNULL(SUM(d.quantity), 0) AS q
+      FROM t_stock_in h INNER JOIN t_stock_in_detail d ON d.in_id = h.in_id
+      WHERE h.date_time >= CAST(GETDATE() AS date)`),
+    db.$queryRaw<any[]>(S`
+      SELECT COUNT(DISTINCT h.out_id) AS c, ISNULL(SUM(d.quantity), 0) AS q
+      FROM t_stock_out h INNER JOIN t_stock_out_detail d ON d.out_id = h.out_id
+      WHERE h.date_time >= CAST(GETDATE() AS date)`),
+    db.$queryRaw<any[]>(S`
+      SELECT COUNT(DISTINCT h.in_id) AS c, ISNULL(SUM(d.quantity), 0) AS q
+      FROM t_stock_in h INNER JOIN t_stock_in_detail d ON d.in_id = h.in_id
+      WHERE h.date_time >= DATEADD(day, -6, CAST(GETDATE() AS date))`),
+    db.$queryRaw<any[]>(S`
+      SELECT COUNT(DISTINCT h.out_id) AS c, ISNULL(SUM(d.quantity), 0) AS q
+      FROM t_stock_out h INNER JOIN t_stock_out_detail d ON d.out_id = h.out_id
+      WHERE h.date_time >= DATEADD(day, -6, CAST(GETDATE() AS date))`),
+  ]);
+  res.json({
+    skuCount: Number(skuRows[0]?.c ?? 0),
+    categories: catRows.map((r) => ({
+      category: r.material_type ?? "",
+      categoryName: r.material_type_name ?? r.material_type ?? "未分类",
+      unit: uNames.get(r.unit) ?? r.unit ?? "",
+      quantity: Number(r.qty),
+    })),
+    today: {
+      inDocs: Number(todayIn[0]?.c ?? 0), inQty: Number(todayIn[0]?.q ?? 0),
+      outDocs: Number(todayOut[0]?.c ?? 0), outQty: Number(todayOut[0]?.q ?? 0),
+    },
+    week: {
+      inDocs: Number(weekIn[0]?.c ?? 0), inQty: Number(weekIn[0]?.q ?? 0),
+      outDocs: Number(weekOut[0]?.c ?? 0), outQty: Number(weekOut[0]?.q ?? 0),
+    },
+  });
+});
+
 // ---------- 批次溯源: 按检索码/车次/批次 跨入库出库全链路检索 ----------
 export const cloudTraceRouter = Router();
 
@@ -535,11 +600,13 @@ cloudInventoryRouter.get("/", async (req, res) => {
       inConds.push(S`h.stock IN (${join(fWarehouses)})`);
       outConds.push(S`h.stock IN (${join(fWarehouses)})`);
     }
+    // 供应商 = 物料编码第二段(如 BCP.MRL.004 → MRL)，与桌面端一致，不依赖批次表(很多物料没有批次行)。
+    // 产地 = 该物料最近一条入库明细的 man_address(单据才是产地的可靠来源)。
     const outerConds = [S`1 = 1`];
     if (fCategories.length) outerConds.push(S`m.material_type IN (${join(fCategories)})`);
-    if (fSuppliers.length) outerConds.push(S`ba.supplier IN (${join(fSuppliers)})`);
-    if (fOrigins.length) outerConds.push(S`ba.man_address IN (${join(fOrigins)})`);
-    if (fText) outerConds.push(S`(m.material_no LIKE ${fLike} OR m.material_name LIKE ${fLike})`);
+    if (fSuppliers.length) outerConds.push(S`PARSENAME(agg.material_id, 2) IN (${join(fSuppliers)})`);
+    if (fOrigins.length) outerConds.push(S`org.man_address IN (${join(fOrigins)})`);
+    if (fText) outerConds.push(S`(m.material_no LIKE ${fLike} OR m.material_name LIKE ${fLike} OR agg.material_id LIKE ${fLike})`);
 
     const rows = await db.$queryRaw<any[]>(S`
       WITH mv AS (
@@ -552,27 +619,33 @@ cloudInventoryRouter.get("/", async (req, res) => {
                CAST(0 AS decimal(38, 4)) AS qin, CAST(d.quantity AS decimal(38, 4)) AS qout
         FROM t_stock_out h INNER JOIN t_stock_out_detail d ON d.out_id = h.out_id
         WHERE ${join(outConds, " AND ")}
+      ),
+      agg AS (
+        SELECT stock, material_id, unit,
+               SUM(qin) AS in_q, SUM(qout) AS out_q, SUM(qin - qout) AS qty
+        FROM mv
+        GROUP BY stock, material_id, unit
+        HAVING SUM(qin - qout) <> 0
       )
-      SELECT mv.stock, st.stock_name, mv.material_id, mv.unit,
+      SELECT agg.stock, agg.material_id, agg.unit, agg.in_q, agg.out_q, agg.qty,
+             st.stock_name,
              m.material_no, m.material_name, m.material_type, mt.material_type_name,
              m.spec, m.pack_spec, m.pack_unit, m.material_sort,
-             ba.supplier, sup.supplier_name, ba.man_address,
-             SUM(mv.qin) AS in_q, SUM(mv.qout) AS out_q, SUM(mv.qin - mv.qout) AS qty
-      FROM mv
-      LEFT JOIN t_a_stock st ON st.stock = mv.stock
-      LEFT JOIN t_a_material m ON m.material_id = mv.material_id
+             PARSENAME(agg.material_id, 2) AS sup_code, sup.supplier_name,
+             org.man_address
+      FROM agg
+      LEFT JOIN t_a_stock st ON st.stock = agg.stock
+      LEFT JOIN t_a_material m ON m.material_id = agg.material_id
       LEFT JOIN t_a_material_type mt ON mt.material_type = m.material_type
+      LEFT JOIN t_a_supplier sup ON sup.supplier = PARSENAME(agg.material_id, 2)
       OUTER APPLY (
-        SELECT TOP 1 b.supplier, b.man_address FROM t_material_batch b
-        WHERE b.material_id = mv.material_id ORDER BY b.entry_time DESC
-      ) ba
-      LEFT JOIN t_a_supplier sup ON sup.supplier = ba.supplier
+        SELECT TOP 1 d2.man_address
+        FROM t_stock_in_detail d2 INNER JOIN t_stock_in h2 ON h2.in_id = d2.in_id
+        WHERE d2.material_id = agg.material_id AND ISNULL(d2.man_address, '') <> ''
+        ORDER BY h2.date_time DESC
+      ) org
       WHERE ${join(outerConds, " AND ")}
-      GROUP BY mv.stock, st.stock_name, mv.material_id, mv.unit, m.material_no, m.material_name,
-               m.material_type, mt.material_type_name, m.spec, m.pack_spec, m.pack_unit,
-               m.material_sort, ba.supplier, sup.supplier_name, ba.man_address
-      HAVING SUM(mv.qin - mv.qout) <> 0
-      ORDER BY m.material_no, mv.stock
+      ORDER BY agg.material_id, agg.stock
     `);
     return res.json({
       rows: rows.map((r) => {
@@ -588,8 +661,8 @@ cloudInventoryRouter.get("/", async (req, res) => {
           categoryName: r.material_type_name ?? r.material_type ?? "",
           shortName: r.material_sort ?? "",
           unit: uNames.get(r.unit) ?? r.unit ?? "",
-          supplier: r.supplier ?? null,
-          supplierName: r.supplier_name ?? r.supplier ?? "",
+          supplier: r.sup_code ?? null,
+          supplierName: r.supplier_name ?? r.sup_code ?? "",
           origin: r.man_address ?? null,
           moisture: r.spec ?? "",
           packSpec,
@@ -608,12 +681,13 @@ cloudInventoryRouter.get("/", async (req, res) => {
 
   // 批次结余同样从明细实时计算：批次入库量 - 批次出库量。
   // t_material_batch.left_quantity 在原系统正常运行时长期为 0，不能作为库存来源。
+  // 供应商优先取批次上的，缺失时回退到物料编码第二段(如 BCP.MRL.004 → MRL)，与桌面端一致。
   const conds = [S`(bal.in_quantity - bal.out_quantity) <> 0`];
   if (fWarehouses.length) conds.push(S`b.stock IN (${join(fWarehouses)})`);
   if (fCategories.length) conds.push(S`m.material_type IN (${join(fCategories)})`);
-  if (fSuppliers.length) conds.push(S`b.supplier IN (${join(fSuppliers)})`);
+  if (fSuppliers.length) conds.push(S`COALESCE(NULLIF(b.supplier, ''), PARSENAME(b.material_id, 2)) IN (${join(fSuppliers)})`);
   if (fOrigins.length) conds.push(S`b.man_address IN (${join(fOrigins)})`);
-  if (fText) conds.push(S`(m.material_no LIKE ${fLike} OR m.material_name LIKE ${fLike})`);
+  if (fText) conds.push(S`(m.material_no LIKE ${fLike} OR m.material_name LIKE ${fLike} OR b.material_id LIKE ${fLike})`);
   const rows = await db.$queryRaw<any[]>(
     S`WITH movements AS (
         SELECT d.material_batch_id,
@@ -637,7 +711,7 @@ cloudInventoryRouter.get("/", async (req, res) => {
       SELECT b.stock, b.material_id, b.batch_no, b.s_code, b.man_address,
              bal.in_quantity, bal.out_quantity,
              (bal.in_quantity - bal.out_quantity) AS quantity,
-             b.supplier, sup.supplier_name,
+             COALESCE(NULLIF(b.supplier, ''), PARSENAME(b.material_id, 2)) AS supplier, sup.supplier_name,
              st.stock_name, m.material_no, m.material_name, m.material_type, mt.material_type_name,
              m.unit, m.spec, m.pack_spec, m.pack_unit, m.material_sort
       FROM balances bal
@@ -645,7 +719,7 @@ cloudInventoryRouter.get("/", async (req, res) => {
       LEFT JOIN t_a_stock st ON st.stock = b.stock
       LEFT JOIN t_a_material m ON m.material_id = b.material_id
       LEFT JOIN t_a_material_type mt ON mt.material_type = m.material_type
-      LEFT JOIN t_a_supplier sup ON sup.supplier = b.supplier
+      LEFT JOIN t_a_supplier sup ON sup.supplier = COALESCE(NULLIF(b.supplier, ''), PARSENAME(b.material_id, 2))
       WHERE ${join(conds, " AND ")}
       ORDER BY b.material_id, b.batch_no`
   );

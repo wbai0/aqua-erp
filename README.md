@@ -2,7 +2,7 @@
 
 慈德 ERP 的 Web + 移动端（PWA）客户端，与现有 Windows 桌面客户端使用同一套业务概念，覆盖毛料、半成品和成品的入库、出库、盘点、即时库存与批次溯源。
 
-日常开发使用生产数据库结构的本地副本 `cide_main_dev`。远端生产数据库 `cide_main` 只允许查询，不允许通过本项目执行任何业务写入。
+项目可以连接生产数据库结构的本地副本 `cide_main_dev`，也可以直接连接远端生产数据库 `cide_main`。当前连接决定全部业务读写的目标数据库。
 
 ## 项目结构
 
@@ -35,11 +35,9 @@ cide-erp/
 |---|---|---|---|
 | `local` | `DATABASE_URL` | 早期简化账套 `cide_erp` | 可读写 |
 | `cloud` | `CLOUD_DATABASE_URL` 指向 localhost | 真实结构本地副本 `cide_main_dev` | 可读写 |
-| `cloud` | `CLOUD_DATABASE_URL` 指向远端主机 | 远端生产库 `cide_main` | 全部业务接口只读 |
+| `cloud` | `CLOUD_DATABASE_URL` 指向远端主机 | 远端生产库 `cide_main` | 可读写 |
 
-cloud 模式采用统一写入保护：除登录接口外，所有业务 API 的非只读 HTTP 请求都经过同一个中间件。只有连接主机明确为 `localhost`、`127.0.0.1` 或 `::1` 时才允许写入；连接串缺失、格式无法识别或指向其他主机时一律返回 `403`。
-
-因此，切换 `CLOUD_DATABASE_URL` 会同时切换单据、审核、供应商、客户、物料、产地和包装物等全部写入能力，不存在部分接口仍写向生产库的例外。
+cloud 模式下不存在独立的读连接或写连接。查询、新增、修改、删除和审核全部使用同一个 `CLOUD_DATABASE_URL`：指向本地时全部操作本地副本，指向远端时全部操作远端数据库，不存在部分接口仍写向另一个数据库的例外。
 
 远端连接凭据只应保存在 `server/.env`，该文件已被 Git 忽略。不要把生产连接串写入源码、README 或提交记录。
 
@@ -69,6 +67,15 @@ cp server/.env.example server/.env
 DATA_SOURCE=cloud
 CLOUD_DATABASE_URL="sqlserver://localhost:1433;database=cide_main_dev;user=sa;password=<本地密码>;trustServerCertificate=true"
 ```
+
+需要直接操作远端数据库时，将同一个变量改为远端连接并重启服务：
+
+```dotenv
+DATA_SOURCE=cloud
+CLOUD_DATABASE_URL="sqlserver://<远端主机>:1433;database=cide_main;user=<用户>;password=<密码>;encrypt=DANGER_PLAINTEXT;trustServerCertificate=true"
+```
+
+页面顶部会显示当前数据库标识：本地连接显示 `LOCAL`，远端连接显示实际数据库名。远端模式下的新增、修改、删除、审核和取消审核会直接改变远端数据。
 
 `server/src/index.ts` 会在启动时自动加载 `server/.env`。
 
@@ -145,7 +152,7 @@ npm run dev
 
 生产库没有用于维护库存的触发器，实际库存逻辑位于旧桌面客户端。当前副本审核实现仅供开发和演示，尚未完整复刻桌面端行为，尤其没有完整覆盖 `t_m_stock_journal` 等关联表。
 
-在测试账套中完成桌面端审核前后全库快照对比、确认取号规则并校正所有库存关联表之前，禁止开放远端生产写入。
+当前 Web 端的副本审核逻辑尚未完整复刻旧桌面客户端。直接在远端执行审核或取消审核前，应确认取号规则及库存流水关联表符合生产要求。
 
 ## 数据库维护命令
 
@@ -178,7 +185,7 @@ npm run schema:check -w server
 - `/api/trace`：按检索码、批次或车次溯源
 - `/api/health`：服务状态与当前数据模式
 
-前端包含工作台、单据列表和表单、库存查询、批次溯源以及桌面/移动端响应式导航。登录 token 当前保存在浏览器 `localStorage`，有效期为 7 天。
+前端包含工作台、单据列表和表单、库存查询、批次溯源以及桌面/移动端响应式导航。工作台提供完整的待审核入库/出库计数；单据支持审核前库存影响摘要、批量审批、复制为新单、录入实时合计、自动暂存恢复和未保存离开提醒。批量审批通过独立 API 在一个 Serializable 事务中批量加载、校验和更新单据、即时库存及批次库存；任一单据失败时整批回滚。这些交互不改变“审核后才进入正式库存”的业务口径。登录 token 当前保存在浏览器 `localStorage`，有效期为 7 天。
 
 ## 当前限制与后续工作
 

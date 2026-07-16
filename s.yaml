@@ -1,0 +1,57 @@
+# Serverless Devs 部署配置（FC 3.0 / 组件 fc3）
+# 用法：安装 s CLI 后，先 `s config add` 配好阿里云密钥，再 `s deploy`
+# 尖括号 <...> 的值请按 DEPLOY.md 说明替换成你自己的
+edition: 3.0.0
+name: cide-erp
+access: default
+
+vars:
+  # 必须与 ECS / 数据库所在地域一致（例：cn-hongkong / cn-shenzhen / cn-hangzhou）
+  region: <REGION>
+
+resources:
+  cide-erp:
+    component: fc3
+    props:
+      region: ${vars.region}
+      functionName: cide-erp
+      description: 慈德ERP web+api（只读连生产库）
+      runtime: custom-container
+      cpu: 0.5
+      memorySize: 1024
+      diskSize: 512
+      timeout: 60
+      instanceConcurrency: 5            # 单实例并发，配合数据库连接数控制
+      customContainerConfig:
+        image: <REGISTRY>/<NAMESPACE>/cide-erp:latest   # 例：registry.cn-hongkong.aliyuncs.com/mycide/cide-erp:latest
+        port: 9000                       # 容器监听端口，与 Dockerfile 的 PORT 一致
+
+      # 环境变量：连接串与密钥不写进镜像，在这里注入
+      environmentVariables:
+        DATA_SOURCE: cloud
+        READ_ONLY: "true"
+        PORT: "9000"
+        JWT_SECRET: <一个足够长的随机字符串>
+        # 注意：用 ECS 的【内网 IP】而非公网 8.130.213.6
+        CLOUD_DATABASE_URL: "sqlserver://<ECS内网IP>:1433;database=cide_main;user=cd;password=<数据库密码>;encrypt=DANGER_PLAINTEXT;trustServerCertificate=true"
+
+      # VPC：与 ECS 同一个 VPC / 交换机 / 安全组，函数才能走内网连库
+      vpcConfig:
+        vpcId: <vpc-xxxxxxxx>
+        securityGroupId: <sg-xxxxxxxx>
+        vSwitchIds:
+          - <vsw-xxxxxxxx>
+
+      # HTTP 触发器：对外提供访问入口
+      triggers:
+        - triggerName: httpTrigger
+          triggerType: http
+          triggerConfig:
+            authType: anonymous          # 演示用匿名；正式可改 function 鉴权或前面挂网关
+            methods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - HEAD
+              - OPTIONS

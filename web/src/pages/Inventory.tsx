@@ -53,9 +53,39 @@ export default function Inventory() {
     [meta.materials]
   );
 
+  // 底部合计行：按计量单位分别合计(千克/袋不能混加)，随当前筛选结果实时变化
+  const totalRows = useMemo(() => {
+    const byUnit = new Map<string, { qty: number; inQ: number; outQ: number; packQ: number }>();
+    for (const r of rows) {
+      const t = byUnit.get(r.unit) ?? { qty: 0, inQ: 0, outQ: 0, packQ: 0 };
+      t.qty += r.quantity;
+      t.inQ += r.inQuantity ?? 0;
+      t.outQ += r.outQuantity ?? 0;
+      t.packQ += r.packQty ?? 0;
+      byUnit.set(r.unit, t);
+    }
+    return [...byUnit.entries()].map(([unit, t]) => ({
+      warehouseId: "__total__",
+      materialId: `__total__${unit}`,
+      warehouseName: "",
+      materialCode: "",
+      materialName: "",
+      category: "",
+      supplierName: `合计（${unit}）`,
+      origin: null,
+      batchNo: null,
+      retrievalCode: null,
+      unit,
+      quantity: Math.round(t.qty * 100) / 100,
+      inQuantity: Math.round(t.inQ * 100) / 100,
+      outQuantity: Math.round(t.outQ * 100) / 100,
+      packQty: Math.round(t.packQ * 100) / 100,
+    })) as StockRow[];
+  }, [rows]);
+
   const colDefs = useMemo<ColDef<StockRow>[]>(() => {
     const cols: ColDef<StockRow>[] = [
-      { headerName: "#", width: 58, pinned: "left", sortable: false, resizable: false, valueGetter: (p) => (p.node?.rowIndex ?? 0) + 1 },
+      { headerName: "#", width: 58, pinned: "left", sortable: false, resizable: false, valueGetter: (p) => (p.node?.rowPinned ? "" : (p.node?.rowIndex ?? 0) + 1) },
       { headerName: "供应商", field: "supplierName", width: 100, pinned: "left" },
       { headerName: "仓库", field: "warehouseName", width: 100 },
       { headerName: "物料编码", field: "materialCode", width: 140, cellClass: "num" },
@@ -146,6 +176,10 @@ export default function Inventory() {
             paginationPageSizeSelector={[25, 50, 100]}
             animateRows
             overlayNoRowsTemplate="<span>暂无库存数据</span>"
+            pinnedBottomRowData={totalRows}
+            getRowStyle={(p) =>
+              p.node.rowPinned ? { fontWeight: 700, background: "#f2f6ff" } : undefined
+            }
             getRowId={(p) => `${p.data.warehouseId}-${p.data.materialId}-${p.data.batchNo ?? ""}-${p.data.retrievalCode ?? ""}`}
           />
         </div>

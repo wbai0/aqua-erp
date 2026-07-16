@@ -91,11 +91,6 @@ export default function DocumentList() {
   const columns = useMemo<ColDef<Doc>[]>(() => [
     { headerName: "单据编号", field: "docNo", width: 170, pinned: "left", cellClass: "num" },
     {
-      headerName: "审核状态", width: 100,
-      valueGetter: (p) => p.data?.status === "APPROVED" ? "已审核" : "未审核",
-      cellStyle: (p) => ({ color: p.data?.status === "APPROVED" ? "#23923d" : "#d97917", fontWeight: 600 }),
-    },
-    {
       headerName: "类型", width: 120,
       valueGetter: (p) => p.data ? typeLabels.get(p.data.docType) ?? p.data.docType : "",
     },
@@ -161,6 +156,11 @@ export default function DocumentList() {
       valueGetter: (p) => p.data ? firstLine(p.data)?.note ?? "—" : "",
     },
     { headerName: "单据备注", field: "remark", width: 160, valueFormatter: (p) => p.value ?? "—" },
+    {
+      headerName: "审核状态", width: 100,
+      valueGetter: (p) => p.data?.status === "APPROVED" ? "已审核" : "未审核",
+      cellStyle: (p) => ({ color: p.data?.status === "APPROVED" ? "#23923d" : "#d97917", fontWeight: 600 }),
+    },
   ], [group, typeLabels]);
 
   const documentGridDefaultColDef = useMemo<ColDef<Doc>>(() => ({

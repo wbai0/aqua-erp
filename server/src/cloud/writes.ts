@@ -1,12 +1,33 @@
-// 单据写操作 — 仅在连接本地副本 (localhost) 时启用.
-// 生产库的审核逻辑在桌面端程序内 (见根目录 README), 此处的库存维护
-// (t_stock_material / t_material_batch) 为副本内的模拟实现, 用于开发与演示.
-// 注: 副本是 SQL Server 2022, 可放心使用 Prisma 类型化查询 (OFFSET 限制仅存在于生产老版本).
+// 真实结构单据写操作。所有查询与写入统一使用 CLOUD_DATABASE_URL。
+// 库存维护逻辑是依据现有表结构实现的 Web 端版本，仍需与旧桌面客户端持续核对。
 import { Router } from "express";
 import { Prisma } from "../generated/cloud";
 import { cloudPrisma as db } from "./prisma";
 
 const S = Prisma.sql;
+const MAX_BULK_APPROVAL = 100;
+
+function errorText(error: unknown): string {
+  return error instanceof Error ? error.message : "审核失败";
+}
+
+export function parseBulkApprovalIds(body: unknown): string[] | string {
+  if (typeof body !== "object" || body === null || !("ids" in body)) return "请选择需要审核的单据";
+  const idsValue = (body as { ids: unknown }).ids;
+  if (!Array.isArray(idsValue) || idsValue.length === 0) return "请选择需要审核的单据";
+  if (idsValue.length > MAX_BULK_APPROVAL) return `一次最多审核 ${MAX_BULK_APPROVAL} 张单据`;
+  const ids = [...new Set(idsValue.map((id) => String(id).trim()).filter(Boolean))];
+  if (!ids.length) return "请选择需要审核的单据";
+  return ids;
+}
+
+const quantity2 = (value: number) => Math.round(value * 100) / 100;
+const inventoryKey = (stock: string, materialId: string) => `${stock}\u0000${materialId}`;
+function chunks<T>(items: T[], size: number): T[][] {
+  const result: T[][] = [];
+  for (let index = 0; index < items.length; index += size) result.push(items.slice(index, index + size));
+  return result;
+}
 
 // ---------- 单据编号: 参照生产格式 前缀+数字 (如 CGRK0002001279 / SCRK000000013133) ----------
 const IN_PREFIX: Record<string, string> = {
@@ -45,6 +66,20 @@ interface LineIn {
   packaging?: string | null;
   batchNo?: string | null;
   note?: string | null;
+}
+
+interface MaterialBatchRow {
+  material_batch_id: string;
+  material_id: string | null;
+  batch_no: string | null;
+  in_quantity: unknown;
+  out_quantity: unknown;
+  left_quantity: unknown;
+  entry_time: Date | null;
+  s_code: string | null;
+  man_address: string | null;
+  supplier: string | null;
+  stock: string | null;
 }
 
 function parseBody(body: any): {
@@ -220,6 +255,298 @@ export function registerWriteRoutes(router: Router) {
     res.json({ ok: true });
   });
 
+  // 批量审核：一次请求、一个 Serializable 事务，按表执行集合式更新。
+  router.post("/bulk-approve", async (req, res) => {
+    const parsedIds = parseBulkApprovalIds(req.body);
+    if (typeof parsedIds === "string") return res.status(400).json({ error: parsedIds });
+    const ids = parsedIds;
+    const person = req.user?.personnelId ?? "PN0010188";
+    const auditTime = new Date();
+
+    try {
+      await db.$transaction(async (tx) => {
+        const inDocs = await tx.t_stock_in.findMany({
+          where: { in_id: { in: ids } },
+          include: { t_stock_in_detail: true },
+        });
+        const outDocs = await tx.t_stock_out.findMany({
+          where: { out_id: { in: ids } },
+          include: { t_stock_out_detail: true },
+        });
+
+        const foundIds = new Set([
+          ...inDocs.map((doc) => doc.in_id),
+          ...outDocs.map((doc) => doc.out_id),
+        ]);
+        const missing = ids.filter((id) => !foundIds.has(id));
+        if (missing.length) throw new Error(`单据不存在：${missing.slice(0, 10).join("、")}`);
+
+        const approved = [
+          ...inDocs.filter((doc) => doc.s_status === "已审核").map((doc) => doc.in_id),
+          ...outDocs.filter((doc) => doc.s_status === "已审核").map((doc) => doc.out_id),
+        ];
+        if (approved.length) throw new Error(`单据已审核：${approved.slice(0, 10).join("、")}`);
+
+        interface InventoryChange {
+          stock: string;
+          materialId: string;
+          materialNo: string;
+          delta: number;
+          outbound: number;
+        }
+        const changes = new Map<string, InventoryChange>();
+        const addChange = (
+          stock: string,
+          materialId: string,
+          materialNo: string | null,
+          quantity: number,
+          direction: 1 | -1
+        ) => {
+          if (!materialId) throw new Error("单据明细缺少物料");
+          if (!(quantity > 0)) throw new Error(`${materialNo || materialId} 的数量必须大于 0`);
+          const key = inventoryKey(stock, materialId);
+          const current = changes.get(key) ?? {
+            stock,
+            materialId,
+            materialNo: materialNo || materialId,
+            delta: 0,
+            outbound: 0,
+          };
+          current.delta = quantity2(current.delta + direction * quantity);
+          if (direction === -1) current.outbound = quantity2(current.outbound + quantity);
+          changes.set(key, current);
+        };
+
+        for (const doc of inDocs) {
+          if (!doc.t_stock_in_detail.length) throw new Error(`单据 ${doc.in_id} 没有明细`);
+          for (const detail of doc.t_stock_in_detail) {
+            addChange(doc.stock, detail.material_id, detail.material_no, Number(detail.quantity), 1);
+          }
+        }
+        for (const doc of outDocs) {
+          if (!doc.t_stock_out_detail.length) throw new Error(`单据 ${doc.out_id} 没有明细`);
+          for (const detail of doc.t_stock_out_detail) {
+            addChange(doc.stock, detail.material_id ?? "", detail.material_no, Number(detail.quantity), -1);
+          }
+        }
+
+        const changeList = [...changes.values()];
+        const stockRows = changeList.length
+          ? await tx.t_stock_material.findMany({
+              where: { OR: changeList.map((item) => ({ stock: item.stock, material_id: item.materialId })) },
+            })
+          : [];
+        const stockByKey = new Map(stockRows.map((row) => [inventoryKey(row.stock, row.material_id), row]));
+        const stockUpdates = changeList.map((item) => {
+          const existing = stockByKey.get(inventoryKey(item.stock, item.materialId));
+          const quantity = quantity2(Number(existing?.quantity ?? 0) + item.delta);
+          const timeQuantity = quantity2(Number(existing?.time_quantity ?? 0) + item.delta);
+          if (quantity < 0) {
+            throw new Error(`库存不足：${item.materialNo} 现有 ${Number(existing?.quantity ?? 0)}，本批次净扣减 ${-item.delta}`);
+          }
+          return { ...item, quantity, timeQuantity };
+        });
+
+        const outboundChanges = changeList.filter((item) => item.outbound > 0);
+        const existingBatches = outboundChanges.length
+          ? await tx.$queryRaw<MaterialBatchRow[]>(S`
+              SELECT material_batch_id, material_id, batch_no, in_quantity, out_quantity, left_quantity,
+                     entry_time, s_code, man_address, supplier, stock
+              FROM t_material_batch
+              WHERE left_quantity > 0
+                AND (${Prisma.join(
+                  outboundChanges.map((item) => S`(stock = ${item.stock} AND material_id = ${item.materialId})`),
+                  " OR "
+                )})
+              ORDER BY entry_time ASC, material_batch_id ASC
+            `)
+          : [];
+
+        interface BatchState {
+          id: string;
+          key: string;
+          left: number;
+          out: number;
+          isNew: boolean;
+          materialId: string;
+          batchNo: string | null;
+          inQuantity: number;
+          sCode: string | null;
+          origin: string | null;
+          supplier: string | null;
+          stock: string;
+        }
+        const batchStates: BatchState[] = existingBatches.map((batch) => ({
+          id: batch.material_batch_id,
+          key: inventoryKey(batch.stock ?? "", batch.material_id ?? ""),
+          left: Number(batch.left_quantity),
+          out: Number(batch.out_quantity),
+          isNew: false,
+          materialId: batch.material_id ?? "",
+          batchNo: batch.batch_no,
+          inQuantity: Number(batch.in_quantity),
+          sCode: batch.s_code,
+          origin: batch.man_address,
+          supplier: batch.supplier,
+          stock: batch.stock ?? "",
+        }));
+        const inboundBatchLinks: { detailId: string; batchId: string }[] = [];
+        for (const doc of inDocs) {
+          for (const detail of doc.t_stock_in_detail) {
+            const batchId = `MB${detail.in_detail}`.slice(0, 50);
+            const quantity = Number(detail.quantity);
+            inboundBatchLinks.push({ detailId: detail.in_detail, batchId });
+            batchStates.push({
+              id: batchId,
+              key: inventoryKey(doc.stock, detail.material_id),
+              left: quantity,
+              out: 0,
+              isNew: true,
+              materialId: detail.material_id,
+              batchNo: detail.batch_no,
+              inQuantity: quantity,
+              sCode: detail.s_code,
+              origin: detail.man_address,
+              supplier: detail.supplier,
+              stock: doc.stock,
+            });
+          }
+        }
+
+        if (inboundBatchLinks.length) {
+          const conflictingBatches = await tx.$queryRaw<{ material_batch_id: string }[]>(S`
+            SELECT material_batch_id
+            FROM t_material_batch
+            WHERE material_batch_id IN (${Prisma.join(inboundBatchLinks.map((item) => S`${item.batchId}`))})
+          `);
+          if (conflictingBatches.length) {
+            throw new Error(`批次编号已存在：${conflictingBatches.slice(0, 10).map((item) => item.material_batch_id).join("、")}`);
+          }
+        }
+
+        for (const change of outboundChanges) {
+          let remaining = change.outbound;
+          for (const batch of batchStates) {
+            if (batch.key !== inventoryKey(change.stock, change.materialId) || remaining <= 0) continue;
+            const take = Math.min(batch.left, remaining);
+            batch.left = quantity2(batch.left - take);
+            batch.out = quantity2(batch.out + take);
+            remaining = quantity2(remaining - take);
+          }
+          if (remaining > 0) {
+            throw new Error(`批次库存不足：${change.materialNo} 仍缺少 ${remaining}`);
+          }
+        }
+
+        const existingStockUpdates = stockUpdates.filter((item) =>
+          stockByKey.has(inventoryKey(item.stock, item.materialId))
+        );
+        for (const updateChunk of chunks(existingStockUpdates, 300)) {
+          const values = Prisma.join(updateChunk.map((item) =>
+            S`(${item.stock}, ${item.materialId}, ${item.quantity}, ${item.timeQuantity}, ${auditTime})`
+          ));
+          await tx.$executeRaw(S`
+              UPDATE target WITH (UPDLOCK, HOLDLOCK) SET
+                target.quantity = source.quantity,
+                target.time_quantity = source.time_quantity,
+                target.date_time = source.date_time
+              FROM t_stock_material AS target
+              INNER JOIN (VALUES ${values}) AS source (stock, material_id, quantity, time_quantity, date_time)
+                ON target.stock = source.stock AND target.material_id = source.material_id
+            `);
+        }
+        const newStockRows = stockUpdates.filter((item) =>
+          !stockByKey.has(inventoryKey(item.stock, item.materialId))
+        );
+        for (const insertChunk of chunks(newStockRows, 300)) {
+          await tx.t_stock_material.createMany({
+            data: insertChunk.map((item) => ({
+              stock: item.stock,
+              material_id: item.materialId,
+              quantity: item.quantity,
+              time_quantity: item.timeQuantity,
+              date_time: auditTime,
+            })),
+          });
+        }
+
+        const newBatches = batchStates.filter((batch) => batch.isNew);
+        for (const insertChunk of chunks(newBatches, 180)) {
+          await tx.t_material_batch.createMany({
+            data: insertChunk.map((batch) => ({
+              material_batch_id: batch.id,
+              material_id: batch.materialId,
+              batch_no: batch.batchNo,
+              in_quantity: batch.inQuantity,
+              out_quantity: batch.out,
+              left_quantity: batch.left,
+              s_code: batch.sCode,
+              man_address: batch.origin,
+              supplier: batch.supplier,
+              stock: batch.stock,
+            })),
+          });
+        }
+
+        const existingBatchOut = new Map(
+          existingBatches.map((batch) => [batch.material_batch_id, Number(batch.out_quantity)])
+        );
+        const changedExistingBatches = batchStates.filter((batch) =>
+          !batch.isNew && batch.out > (existingBatchOut.get(batch.id) ?? 0)
+        );
+        for (const updateChunk of chunks(changedExistingBatches, 600)) {
+          const values = Prisma.join(updateChunk.map((batch) => S`(${batch.id}, ${batch.left}, ${batch.out})`));
+          await tx.$executeRaw(S`
+            UPDATE target SET
+              target.left_quantity = source.left_quantity,
+              target.out_quantity = source.out_quantity
+            FROM t_material_batch AS target
+            INNER JOIN (VALUES ${values}) AS source (material_batch_id, left_quantity, out_quantity)
+              ON target.material_batch_id = source.material_batch_id
+          `);
+        }
+
+        for (const updateChunk of chunks(inboundBatchLinks, 800)) {
+          const values = Prisma.join(updateChunk.map((item) => S`(${item.detailId}, ${item.batchId})`));
+          await tx.$executeRaw(S`
+            UPDATE target SET
+              target.material_batch_id = source.material_batch_id,
+              target.s_status = N'已审核'
+            FROM t_stock_in_detail AS target
+            INNER JOIN (VALUES ${values}) AS source (in_detail, material_batch_id)
+              ON target.in_detail = source.in_detail
+          `);
+        }
+
+        const inIds = inDocs.map((doc) => doc.in_id);
+        const outIds = outDocs.map((doc) => doc.out_id);
+        if (inIds.length) {
+          await tx.t_stock_in.updateMany({
+            where: { in_id: { in: inIds } },
+            data: { s_status: "已审核", audit_person: person, audit_time: auditTime },
+          });
+        }
+        if (outIds.length) {
+          await tx.t_stock_out_detail.updateMany({
+            where: { out_id: { in: outIds } },
+            data: { s_status: "已审核" },
+          });
+          await tx.t_stock_out.updateMany({
+            where: { out_id: { in: outIds } },
+            data: { s_status: "已审核", audit_person: person, audit_time: auditTime },
+          });
+        }
+      }, {
+        isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
+        timeout: 60_000,
+      });
+    } catch (error: unknown) {
+      return res.status(409).json({ error: errorText(error) });
+    }
+
+    res.json({ approvedIds: ids, count: ids.length, status: "APPROVED" });
+  });
+
   // 审核: 更新库存 (副本模拟)
   router.post("/:id/approve", async (req, res) => {
     const found = await findDoc(String(req.params.id));
@@ -269,10 +596,13 @@ export function registerWriteRoutes(router: Router) {
           } else {
             // FIFO 扣减批次
             let remain = qty;
-            const batches = await tx.t_material_batch.findMany({
-              where: { stock, material_id: matId, left_quantity: { gt: 0 } },
-              orderBy: { entry_time: "asc" },
-            });
+            const batches = await tx.$queryRaw<MaterialBatchRow[]>(S`
+              SELECT material_batch_id, material_id, batch_no, in_quantity, out_quantity, left_quantity,
+                     entry_time, s_code, man_address, supplier, stock
+              FROM t_material_batch
+              WHERE stock = ${stock} AND material_id = ${matId} AND left_quantity > 0
+              ORDER BY entry_time ASC, material_batch_id ASC
+            `);
             for (const b of batches) {
               if (remain <= 0) break;
               const take = Math.min(Number(b.left_quantity), remain);

@@ -38,12 +38,14 @@ if (cloudMode) {
     cloudDocumentsRouter,
     cloudInventoryRouter,
     cloudTraceRouter,
+    cloudDashboardRouter,
   } = require("./cloud/router");
   app.use("/api/auth", cloudAuthRouter);
   app.use("/api/masters", requireAuth, cloudMastersRouter);
   app.use("/api/documents", requireAuth, cloudDocumentsRouter);
   app.use("/api/inventory", requireAuth, cloudInventoryRouter);
   app.use("/api/trace", requireAuth, cloudTraceRouter);
+  app.use("/api/dashboard", requireAuth, cloudDashboardRouter);
 } else {
   app.use("/api/auth", authRouter);
   app.use("/api/masters", requireAuth, mastersRouter);

@@ -217,7 +217,9 @@ body {
 }
 .stat-card .s-label { color: var(--text-3); font-size: 12px; margin-bottom: 6px; }
 .stat-card .s-value { font-size: 24px; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -0.3px; }
+.stat-card .s-value small { font-size: 13px; font-weight: 500; color: var(--text-3); }
 .stat-card .s-value.primary { color: var(--accent); }
+.stat-card .s-sub { color: var(--text-3); font-size: 12px; margin-top: 4px; font-variant-numeric: tabular-nums; }
 
 /* ---------- 表单/审核辅助(录入页仍在用) ---------- */
 .audit-summary { color: var(--text-2); line-height: 1.7; }

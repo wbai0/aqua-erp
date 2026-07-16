@@ -1,0 +1,18 @@
+# 依赖与构建产物：镜像内会在 Linux 重新安装/构建，绝不能带本地 Mac 版进来
+node_modules
+**/node_modules
+dist
+**/dist
+server/src/generated
+
+# 密钥：连接串/JWT 通过 FC 环境变量注入，不进镜像
+.env
+**/.env
+
+# 杂项
+.git
+.DS_Store
+**/.DS_Store
+tmp
+output
+*.pdf
