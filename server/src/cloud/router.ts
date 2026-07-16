@@ -1,5 +1,4 @@
-// 云端模式 (DATA_SOURCE=cloud): 直连生产库 cide_main.
-// 写入权限由服务入口统一控制：本地副本可写，远端数据库全部只读。
+// 云端结构模式 (DATA_SOURCE=cloud)：所有读写统一使用 CLOUD_DATABASE_URL。
 //
 // ⚠️ 生产 SQL Server 为 2008 时代版本, 不支持 OFFSET/FETCH 分页,
 // Prisma 生成的查询会报语法错误 — 因此本文件全部使用手写 SQL
@@ -10,7 +9,6 @@ import crypto from "crypto";
 import { Prisma } from "../generated/cloud";
 import { cloudPrisma as db } from "./prisma";
 import { AuthUser } from "../auth";
-import { isLocalReplica } from "./access";
 import { registerWriteRoutes } from "./writes";
 
 const JWT_SECRET = process.env.JWT_SECRET || "dev-secret";
@@ -51,13 +49,9 @@ function groupOf(name: string, dir: 1 | -1): "in" | "out" | "stocktake" {
 }
 const statusMap = (s: string) => (s === "已审核" ? "APPROVED" : "DRAFT");
 
-let unitCache: Map<string, string> | null = null;
 async function unitNames(): Promise<Map<string, string>> {
-  if (!unitCache) {
-    const units = await db.$queryRaw<any[]>(S`SELECT unit, unit_name FROM t_a_unit`);
-    unitCache = new Map(units.map((u) => [u.unit, u.unit_name]));
-  }
-  return unitCache;
+  const units = await db.$queryRaw<any[]>(S`SELECT unit, unit_name FROM t_a_unit`);
+  return new Map(units.map((u) => [u.unit, u.unit_name]));
 }
 
 // ---------- 基础资料 ----------
@@ -85,7 +79,7 @@ cloudMastersRouter.get("/meta", async (_req, res) => {
       db.$queryRaw<any[]>(S`SELECT unit, unit_name FROM t_a_unit ORDER BY list_no`),
     ]);
   res.json({
-    capabilities: { canWriteDocs: isLocalReplica() }, // 本地副本可写; 生产库只读
+    capabilities: { canWriteDocs: false }, // 只读模式：前端隐藏一切写操作(新单/修改/删除/审核)
     warehouses: stocks.map((s) => ({ id: s.stock, code: s.stock, name: s.stock_name })),
     suppliers: suppliers.map((s) => ({ id: s.supplier, name: s.supplier_name })),
     customers: custs.map((c) => ({ id: c.cust, name: c.cust_name })),
@@ -213,7 +207,8 @@ async function fetchLines(kind: "in" | "out", ids: string[], uNames: Map<string,
     kind === "in"
       ? await db.$queryRaw<any[]>(
           S`SELECT d.in_id AS doc_id, d.in_detail AS line_id, d.material_id, d.material_no, d.material_name,
-                   d.batch_no, d.s_code, d.man_address, d.quantity, d.unit, d.weight_quantity, d.packing, d.memo,
+                   d.batch_no, d.s_code, d.man_address, d.quantity, d.unit, d.weight_quantity, d.weight_unit,
+                   d.spec, d.pack_quantity, d.pack_unit, d.tech, d.packing, d.memo,
                    m.material_no AS m_no, m.material_name AS m_name, s.supplier_name
             FROM t_stock_in_detail d
             LEFT JOIN t_a_material m ON m.material_id = d.material_id
@@ -222,7 +217,8 @@ async function fetchLines(kind: "in" | "out", ids: string[], uNames: Map<string,
         )
       : await db.$queryRaw<any[]>(
           S`SELECT d.out_id AS doc_id, d.out_detail AS line_id, d.material_id, d.material_no, d.material_name,
-                   d.batch_no, d.s_code, d.man_address, d.quantity, d.unit, NULL AS weight_quantity, d.packing, d.memo,
+                   d.batch_no, d.s_code, d.man_address, d.quantity, d.unit, NULL AS weight_quantity, NULL AS weight_unit,
+                   d.spec, d.pack_quantity, d.pack_unit, d.tech, d.packing, d.memo,
                    m.material_no AS m_no, m.material_name AS m_name, NULL AS supplier_name
             FROM t_stock_out_detail d
             LEFT JOIN t_a_material m ON m.material_id = d.material_id
@@ -240,7 +236,12 @@ async function fetchLines(kind: "in" | "out", ids: string[], uNames: Map<string,
       quantity: Number(r.quantity),
       unit: uNames.get(r.unit) ?? r.unit,
       unitId: r.unit,
+      spec: r.spec || null,
+      packQuantity: r.pack_quantity != null ? Number(r.pack_quantity) : null,
+      packUnit: r.pack_unit ? (uNames.get(r.pack_unit) ?? r.pack_unit) : null,
+      tech: r.tech || null,
       weight: r.weight_quantity != null ? Number(r.weight_quantity) : null,
+      weightUnit: r.weight_unit ? (uNames.get(r.weight_unit) ?? r.weight_unit) : null,
       packaging: r.packing,
       note: r.memo,
       supplierName: r.supplier_name ?? null,
@@ -390,8 +391,10 @@ cloudDocumentsRouter.get("/:id", async (req, res) => {
   res.status(404).json({ error: "单据不存在" });
 });
 
-// 路由始终注册，是否允许写入由服务入口的统一中间件决定。
-registerWriteRoutes(cloudDocumentsRouter);
+// 只读模式：不再注册任何写路由(新单/修改/删除/审核/取消审核/批量审核)。
+// 即使误注册，index.ts 的只读中间件也会挡住所有非 GET 请求。
+// registerWriteRoutes(cloudDocumentsRouter);
+void registerWriteRoutes; // 保留导入引用，避免未使用告警
 
 // ---------- 批次溯源: 按检索码/车次/批次 跨入库出库全链路检索 ----------
 export const cloudTraceRouter = Router();
@@ -399,8 +402,15 @@ export const cloudTraceRouter = Router();
 cloudTraceRouter.get("/", async (req, res) => {
   const key = String(req.query.q ?? "").trim();
   if (!key) return res.json({ events: [] });
+  const mode = req.query.mode === "material" ? "material" : "batch";
   const uNames = await unitNames();
   const like = "%" + key + "%";
+  const inWhere = mode === "material"
+    ? S`d.material_no = ${key} OR d.material_id = ${key}`
+    : S`d.s_code LIKE ${like} OR d.batch_no = ${key} OR h.car_no2 = ${key} OR d.batch_no LIKE ${like}`;
+  const outWhere = mode === "material"
+    ? S`d.material_no = ${key} OR d.material_id = ${key}`
+    : S`d.s_code LIKE ${like} OR d.batch_no = ${key} OR h.car_no = ${key} OR d.batch_no LIKE ${like}`;
 
   const ins = await db.$queryRaw<any[]>(
     S`SELECT h.in_id AS doc_no, h.in_type AS type_code, h.date_time, h.s_status, h.car_no2 AS car_no,
@@ -415,7 +425,7 @@ cloudTraceRouter.get("/", async (req, res) => {
       LEFT JOIN t_a_material_type mt ON mt.material_type = m.material_type
       LEFT JOIN t_a_supplier s ON s.supplier = d.supplier
       LEFT JOIN t_a_cust c ON c.cust = h.in_cust
-      WHERE d.s_code LIKE ${like} OR d.batch_no = ${key} OR h.car_no2 = ${key} OR d.batch_no LIKE ${like}`
+      WHERE ${inWhere}`
   );
   const outs = await db.$queryRaw<any[]>(
     S`SELECT h.out_id AS doc_no, h.out_type AS type_code, h.date_time, h.s_status, h.car_no AS car_no,
@@ -429,7 +439,7 @@ cloudTraceRouter.get("/", async (req, res) => {
       LEFT JOIN t_a_material m ON m.material_id = d.material_id
       LEFT JOIN t_a_material_type mt ON mt.material_type = m.material_type
       LEFT JOIN t_a_cust c ON c.cust = h.cust
-      WHERE d.s_code LIKE ${like} OR d.batch_no = ${key} OR h.car_no = ${key} OR d.batch_no LIKE ${like}`
+      WHERE ${outWhere}`
   );
 
   const events = [...ins, ...outs]
@@ -459,68 +469,214 @@ cloudTraceRouter.get("/", async (req, res) => {
 // ---------- 即时库存 ----------
 export const cloudInventoryRouter = Router();
 
+function selectedMaterialNames(value: unknown): string[] {
+  if (typeof value !== "string" || !value.trim()) return [];
+  try {
+    const parsed: unknown = JSON.parse(value);
+    return Array.isArray(parsed)
+      ? [...new Set(parsed.filter((item): item is string => typeof item === "string").map((item) => item.trim()).filter(Boolean))]
+      : [];
+  } catch {
+    return [];
+  }
+}
+
+interface InventoryMovementRow {
+  stock: string;
+  stock_name: string | null;
+  material_name: string;
+  material_type: string | null;
+  unit: string;
+  in_quantity: unknown;
+  out_quantity: unknown;
+  quantity: unknown;
+}
+
+interface InventoryNameRow {
+  material_name: string;
+}
+
 cloudInventoryRouter.get("/", async (req, res) => {
   const q = req.query;
   const uNames = await unitNames();
   const byBatch = q.byBatch === "1" || q.byBatch === "true";
+  const names = selectedMaterialNames(q.materialNames);
+  const nameRows = await db.$queryRaw<InventoryNameRow[]>(S`
+    SELECT material_name
+    FROM (
+      SELECT DISTINCT LTRIM(RTRIM(d.material_name)) AS material_name
+      FROM t_stock_in_detail d
+      INNER JOIN t_stock_in h ON h.in_id = d.in_id
+      WHERE NULLIF(LTRIM(RTRIM(d.material_name)), N'') IS NOT NULL
+      UNION
+      SELECT DISTINCT LTRIM(RTRIM(d.material_name)) AS material_name
+      FROM t_stock_out_detail d
+      INNER JOIN t_stock_out h ON h.out_id = d.out_id
+      WHERE NULLIF(LTRIM(RTRIM(d.material_name)), N'') IS NOT NULL
+    ) names
+    ORDER BY material_name
+  `);
+  const materialNames = nameRows.map((row) => row.material_name);
+
+  // 服务端多选筛选(逗号分隔)。前端 antd 多选一变就带这些参数重新查库。
+  const csv = (v: unknown) => (typeof v === "string" && v.trim() ? v.split(",").map((s) => s.trim()).filter(Boolean) : []);
+  const fWarehouses = csv(q.warehouseIds);
+  const fSuppliers = csv(q.suppliers);
+  const fOrigins = csv(q.origins);
+  const fCategories = csv(q.categories);
+  const fText = typeof q.q === "string" ? q.q.trim() : "";
+  const fLike = "%" + fText + "%";
 
   if (!byBatch) {
-    const conds = [S`sm.quantity <> 0`];
-    if (q.warehouseId) conds.push(S`sm.stock = ${String(q.warehouseId)}`);
-    if (q.materialId) conds.push(S`sm.material_id = ${String(q.materialId)}`);
-    if (q.category) conds.push(S`m.material_type = ${String(q.category)}`);
-    const rows = await db.$queryRaw<any[]>(
-      S`SELECT sm.stock, sm.material_id, sm.quantity, st.stock_name,
-               m.material_no, m.material_name, m.material_type, m.unit
-        FROM t_stock_material sm
-        LEFT JOIN t_a_stock st ON st.stock = sm.stock
-        LEFT JOIN t_a_material m ON m.material_id = sm.material_id
-        WHERE ${join(conds, " AND ")}
-        ORDER BY sm.stock, sm.material_id`
-    );
+    // 与桌面端一致：即时库存从"所有单据"现算(不看审核状态)。
+    const inConds = [S`1 = 1`];
+    const outConds = [S`1 = 1`];
+    if (fWarehouses.length) {
+      inConds.push(S`h.stock IN (${join(fWarehouses)})`);
+      outConds.push(S`h.stock IN (${join(fWarehouses)})`);
+    }
+    const outerConds = [S`1 = 1`];
+    if (fCategories.length) outerConds.push(S`m.material_type IN (${join(fCategories)})`);
+    if (fSuppliers.length) outerConds.push(S`ba.supplier IN (${join(fSuppliers)})`);
+    if (fOrigins.length) outerConds.push(S`ba.man_address IN (${join(fOrigins)})`);
+    if (fText) outerConds.push(S`(m.material_no LIKE ${fLike} OR m.material_name LIKE ${fLike})`);
+
+    const rows = await db.$queryRaw<any[]>(S`
+      WITH mv AS (
+        SELECT h.stock, d.material_id, d.unit,
+               CAST(d.quantity AS decimal(38, 4)) AS qin, CAST(0 AS decimal(38, 4)) AS qout
+        FROM t_stock_in h INNER JOIN t_stock_in_detail d ON d.in_id = h.in_id
+        WHERE ${join(inConds, " AND ")}
+        UNION ALL
+        SELECT h.stock, d.material_id, d.unit,
+               CAST(0 AS decimal(38, 4)) AS qin, CAST(d.quantity AS decimal(38, 4)) AS qout
+        FROM t_stock_out h INNER JOIN t_stock_out_detail d ON d.out_id = h.out_id
+        WHERE ${join(outConds, " AND ")}
+      )
+      SELECT mv.stock, st.stock_name, mv.material_id, mv.unit,
+             m.material_no, m.material_name, m.material_type, mt.material_type_name,
+             m.spec, m.pack_spec, m.pack_unit, m.material_sort,
+             ba.supplier, sup.supplier_name, ba.man_address,
+             SUM(mv.qin) AS in_q, SUM(mv.qout) AS out_q, SUM(mv.qin - mv.qout) AS qty
+      FROM mv
+      LEFT JOIN t_a_stock st ON st.stock = mv.stock
+      LEFT JOIN t_a_material m ON m.material_id = mv.material_id
+      LEFT JOIN t_a_material_type mt ON mt.material_type = m.material_type
+      OUTER APPLY (
+        SELECT TOP 1 b.supplier, b.man_address FROM t_material_batch b
+        WHERE b.material_id = mv.material_id ORDER BY b.entry_time DESC
+      ) ba
+      LEFT JOIN t_a_supplier sup ON sup.supplier = ba.supplier
+      WHERE ${join(outerConds, " AND ")}
+      GROUP BY mv.stock, st.stock_name, mv.material_id, mv.unit, m.material_no, m.material_name,
+               m.material_type, mt.material_type_name, m.spec, m.pack_spec, m.pack_unit,
+               m.material_sort, ba.supplier, sup.supplier_name, ba.man_address
+      HAVING SUM(mv.qin - mv.qout) <> 0
+      ORDER BY m.material_no, mv.stock
+    `);
     return res.json({
-      rows: rows.map((r) => ({
-        warehouseId: r.stock,
-        warehouseName: r.stock_name ?? r.stock,
-        materialId: r.material_id,
-        materialCode: r.material_no ?? r.material_id,
-        materialName: r.material_name ?? "",
-        category: r.material_type ?? "",
-        unit: uNames.get(r.unit) ?? r.unit ?? "",
-        batchNo: null,
-        retrievalCode: null,
-        origin: null,
-        quantity: Number(r.quantity),
-      })),
+      rows: rows.map((r) => {
+        const qty = Number(r.qty);
+        const packSpec = r.pack_spec != null ? Number(r.pack_spec) : null;
+        return {
+          warehouseId: r.stock,
+          warehouseName: r.stock_name ?? r.stock,
+          materialId: r.material_id,
+          materialCode: r.material_no ?? r.material_id,
+          materialName: r.material_name ?? "",
+          category: r.material_type ?? "",
+          categoryName: r.material_type_name ?? r.material_type ?? "",
+          shortName: r.material_sort ?? "",
+          unit: uNames.get(r.unit) ?? r.unit ?? "",
+          supplier: r.supplier ?? null,
+          supplierName: r.supplier_name ?? r.supplier ?? "",
+          origin: r.man_address ?? null,
+          moisture: r.spec ?? "",
+          packSpec,
+          packUnit: r.pack_unit ? (uNames.get(r.pack_unit) ?? r.pack_unit) : "",
+          packQty: packSpec && packSpec > 0 ? Math.round((qty / packSpec) * 100) / 100 : null,
+          batchNo: null,
+          retrievalCode: null,
+          inQuantity: Number(r.in_q),
+          outQuantity: Number(r.out_q),
+          quantity: qty,
+        };
+      }),
+      materialNames,
     });
   }
 
-  const conds = [S`b.left_quantity > 0`];
-  if (q.warehouseId) conds.push(S`b.stock = ${String(q.warehouseId)}`);
-  if (q.materialId) conds.push(S`b.material_id = ${String(q.materialId)}`);
-  if (q.category) conds.push(S`m.material_type = ${String(q.category)}`);
+  // 批次结余同样从明细实时计算：批次入库量 - 批次出库量。
+  // t_material_batch.left_quantity 在原系统正常运行时长期为 0，不能作为库存来源。
+  const conds = [S`(bal.in_quantity - bal.out_quantity) <> 0`];
+  if (fWarehouses.length) conds.push(S`b.stock IN (${join(fWarehouses)})`);
+  if (fCategories.length) conds.push(S`m.material_type IN (${join(fCategories)})`);
+  if (fSuppliers.length) conds.push(S`b.supplier IN (${join(fSuppliers)})`);
+  if (fOrigins.length) conds.push(S`b.man_address IN (${join(fOrigins)})`);
+  if (fText) conds.push(S`(m.material_no LIKE ${fLike} OR m.material_name LIKE ${fLike})`);
   const rows = await db.$queryRaw<any[]>(
-    S`SELECT b.stock, b.material_id, b.batch_no, b.s_code, b.man_address, b.left_quantity,
-             st.stock_name, m.material_no, m.material_name, m.material_type, m.unit
-      FROM t_material_batch b
+    S`WITH movements AS (
+        SELECT d.material_batch_id,
+               CAST(d.quantity AS decimal(38, 4)) AS in_quantity,
+               CAST(0 AS decimal(38, 4)) AS out_quantity
+        FROM t_stock_in_detail d
+        WHERE NULLIF(LTRIM(RTRIM(d.material_batch_id)), N'') IS NOT NULL
+        UNION ALL
+        SELECT d.material_batch_id,
+               CAST(0 AS decimal(38, 4)) AS in_quantity,
+               CAST(d.quantity AS decimal(38, 4)) AS out_quantity
+        FROM t_stock_out_detail d
+        WHERE NULLIF(LTRIM(RTRIM(d.material_batch_id)), N'') IS NOT NULL
+      ), balances AS (
+        SELECT material_batch_id,
+               SUM(in_quantity) AS in_quantity,
+               SUM(out_quantity) AS out_quantity
+        FROM movements
+        GROUP BY material_batch_id
+      )
+      SELECT b.stock, b.material_id, b.batch_no, b.s_code, b.man_address,
+             bal.in_quantity, bal.out_quantity,
+             (bal.in_quantity - bal.out_quantity) AS quantity,
+             b.supplier, sup.supplier_name,
+             st.stock_name, m.material_no, m.material_name, m.material_type, mt.material_type_name,
+             m.unit, m.spec, m.pack_spec, m.pack_unit, m.material_sort
+      FROM balances bal
+      INNER JOIN t_material_batch b ON b.material_batch_id = bal.material_batch_id
       LEFT JOIN t_a_stock st ON st.stock = b.stock
       LEFT JOIN t_a_material m ON m.material_id = b.material_id
+      LEFT JOIN t_a_material_type mt ON mt.material_type = m.material_type
+      LEFT JOIN t_a_supplier sup ON sup.supplier = b.supplier
       WHERE ${join(conds, " AND ")}
       ORDER BY b.material_id, b.batch_no`
   );
   res.json({
-    rows: rows.map((b) => ({
-      warehouseId: b.stock ?? "",
-      warehouseName: b.stock_name ?? b.stock ?? "",
-      materialId: b.material_id ?? "",
-      materialCode: b.material_no ?? b.material_id ?? "",
-      materialName: b.material_name ?? "",
-      category: b.material_type ?? "",
-      unit: uNames.get(b.unit) ?? "",
-      batchNo: b.batch_no,
-      retrievalCode: b.s_code,
-      origin: b.man_address,
-      quantity: Number(b.left_quantity),
-    })),
+    rows: rows.map((b) => {
+      const qty = Number(b.quantity);
+      const packSpec = b.pack_spec != null ? Number(b.pack_spec) : null;
+      return {
+        warehouseId: b.stock ?? "",
+        warehouseName: b.stock_name ?? b.stock ?? "",
+        materialId: b.material_id ?? "",
+        materialCode: b.material_no ?? b.material_id ?? "",
+        materialName: b.material_name ?? "",
+        category: b.material_type ?? "",
+        categoryName: b.material_type_name ?? b.material_type ?? "",
+        shortName: b.material_sort ?? "",
+        unit: uNames.get(b.unit) ?? "",
+        supplier: b.supplier ?? null,
+        supplierName: b.supplier_name ?? b.supplier ?? "",
+        moisture: b.spec ?? "",
+        packSpec,
+        packUnit: b.pack_unit ? (uNames.get(b.pack_unit) ?? b.pack_unit) : "",
+        packQty: packSpec && packSpec > 0 ? Math.round((qty / packSpec) * 100) / 100 : null,
+        batchNo: b.batch_no,
+        retrievalCode: b.s_code,
+        origin: b.man_address,
+        inQuantity: Number(b.in_quantity),
+        outQuantity: Number(b.out_quantity),
+        quantity: qty,
+      };
+    }),
+    materialNames,
   });
 });

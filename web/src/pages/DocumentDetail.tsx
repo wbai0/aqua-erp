@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { Button, Descriptions, message, Popconfirm, Spin, Table, Tag } from "antd";
-import { ArrowLeftOutlined, CheckOutlined, DeleteOutlined, EditOutlined, UndoOutlined } from "@ant-design/icons";
+import { ArrowLeftOutlined, CheckOutlined, CopyOutlined, DeleteOutlined, EditOutlined, UndoOutlined } from "@ant-design/icons";
 import { useNavigate, useParams } from "react-router-dom";
 import dayjs from "dayjs";
-import { api, Doc } from "../api";
+import { api, Doc, DocLine } from "../api";
 import { useMeta } from "../App";
 
 export default function DocumentDetail() {
@@ -29,9 +29,17 @@ export default function DocumentDetail() {
       </div>
     );
 
-  const typeLabel = meta.docTypes.find((t) => t.key === doc.docType)?.label ?? doc.docType;
+  const typeInfo = meta.docTypes.find((t) => t.key === doc.docType);
+  const typeLabel = typeInfo?.label ?? doc.docType;
   const approved = doc.status === "APPROVED";
   const canWrite = meta.capabilities?.canWriteDocs !== false;
+  const totals = new Map<string, number>();
+  for (const line of doc.lines) totals.set(line.unit, (totals.get(line.unit) ?? 0) + Number(line.quantity));
+  const totalText = [...totals.entries()].map(([unit, quantity]) => `${quantity.toLocaleString()} ${unit}`).join(" / ");
+  const auditEffect = (typeInfo?.direction ?? 0) >= 0 ? "正式计入库存" : "正式扣减库存";
+  const lines = doc.lines;
+  const hasAny = (get: (l: DocLine) => unknown) =>
+    lines.some((l) => { const v = get(l); return v != null && v !== ""; });
 
   async function action(path: string, ok: string) {
     setBusy(true);
@@ -65,6 +73,11 @@ export default function DocumentDetail() {
           返回
         </Button>
         <div style={{ display: "flex", gap: 8 }}>
+          {canWrite && (
+            <Button icon={<CopyOutlined />} onClick={() => navigate(`/documents/new?copyFrom=${encodeURIComponent(String(id))}`)}>
+              复制为新单
+            </Button>
+          )}
           {canWrite && !approved && (
             <>
               <Button icon={<EditOutlined />} onClick={() => navigate(`/documents/${id}/edit`)}>
@@ -75,9 +88,23 @@ export default function DocumentDetail() {
                   删除
                 </Button>
               </Popconfirm>
-              <Button type="primary" icon={<CheckOutlined />} loading={busy} onClick={() => action("approve", "审核成功")}>
-                审核
-              </Button>
+              <Popconfirm
+                title={`确认审核 ${doc.docNo}？`}
+                description={
+                  <div className="audit-summary">
+                    <div>{typeLabel} · {doc.warehouse?.name}</div>
+                    <div>{doc.lines.length} 项明细 · {totalText || "未填写数量"}</div>
+                    <b>审核后将{auditEffect}</b>
+                  </div>
+                }
+                okText="确认审核"
+                cancelText="再检查一下"
+                onConfirm={() => action("approve", "审核成功")}
+              >
+                <Button type="primary" icon={<CheckOutlined />} loading={busy}>
+                  审核
+                </Button>
+              </Popconfirm>
             </>
           )}
           {canWrite && approved && (
@@ -118,10 +145,23 @@ export default function DocumentDetail() {
         dataSource={doc.lines}
         pagination={false}
         size="small"
-        scroll={{ x: 700 }}
+        scroll={{ x: 980 }}
         columns={[
-          { title: "物料编码", render: (_, l) => l.material?.code },
+          {
+            title: "物料编码",
+            render: (_, l) => l.material?.code ? (
+              <a
+                onClick={(event) => {
+                  event.stopPropagation();
+                  navigate(`/trace?mode=material&q=${encodeURIComponent(l.material!.code)}`);
+                }}
+              >
+                {l.material.code}
+              </a>
+            ) : "—",
+          },
           { title: "品名", render: (_, l) => l.material?.name },
+          ...(hasAny((l) => l.spec) ? [{ title: "规格", render: (_: any, l: any) => l.spec || "—" }] : []),
           {
             title: "检索码",
             render: (_, l) =>
@@ -131,13 +171,26 @@ export default function DocumentDetail() {
                 </a>
               ) : ("—"),
           },
+          ...(hasAny((l) => l.batchNo) ? [{ title: "批次号", render: (_: any, l: any) => l.batchNo || "—" }] : []),
           { title: "产地", dataIndex: "origin" },
           {
             title: "数量",
             align: "right" as const,
             render: (_, l) => `${Number(l.quantity).toLocaleString()} ${l.unit}`,
           },
-          { title: "包装物", dataIndex: "packaging" },
+          ...(hasAny((l) => l.packQuantity != null && l.packQuantity !== "")
+            ? [{
+                title: "件数",
+                align: "right" as const,
+                render: (_: any, l: any) =>
+                  l.packQuantity != null && l.packQuantity !== ""
+                    ? `${Number(l.packQuantity).toLocaleString()}${l.packUnit ? " " + l.packUnit : ""}`
+                    : "—",
+              }]
+            : []),
+          ...(hasAny((l) => l.tech) ? [{ title: "工艺", render: (_: any, l: any) => l.tech || "—" }] : []),
+          { title: "包装物", dataIndex: "packaging", render: (v: any) => v || "—" },
+          ...(hasAny((l) => l.note) ? [{ title: "备注", dataIndex: "note", render: (v: any) => v || "—" }] : []),
         ]}
       />
     </div>

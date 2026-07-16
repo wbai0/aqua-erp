@@ -6,16 +6,32 @@ import { authRouter, requireAuth } from "./auth";
 import { mastersRouter } from "./routes/masters";
 import { documentsRouter } from "./routes/documents";
 import { inventoryRouter } from "./routes/inventory";
+import { describeSqlServerDatabase } from "./cloud/access";
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
 const cloudMode = process.env.DATA_SOURCE === "cloud";
-app.get("/api/health", (_req, res) => res.json({ ok: true, mode: cloudMode ? "cloud" : "local" }));
+// 只读模式：默认在 cloud 模式下开启。直连生产库时，绝不允许任何写操作。
+const readOnly = process.env.READ_ONLY !== "false" && cloudMode;
+const database = describeSqlServerDatabase(cloudMode ? process.env.CLOUD_DATABASE_URL : process.env.DATABASE_URL);
+app.get("/api/health", (_req, res) =>
+  res.json({ ok: true, mode: cloudMode ? "cloud" : "local", readOnly, database })
+);
+
+// ⛔ 只读硬拦截：除登录外，拒绝一切非 GET 请求（新单/修改/删除/审核/取消审核/批量审核等全部挡在服务端）。
+if (readOnly) {
+  app.use("/api", (req, res, next) => {
+    const safe = req.method === "GET" || req.method === "HEAD" || req.method === "OPTIONS";
+    const isLogin = req.method === "POST" && req.path === "/auth/login";
+    if (safe || isLogin) return next();
+    return res.status(403).json({ error: "系统为只读模式，不支持新增/修改/审核等写操作" });
+  });
+}
 
 if (cloudMode) {
-  // 云端模式: 直连生产库 cide_main (阶段一: 单据只读)
+  // cloud 模式下，所有业务读写统一使用 CLOUD_DATABASE_URL 指向的数据库。
   const {
     cloudAuthRouter,
     cloudMastersRouter,
@@ -23,13 +39,11 @@ if (cloudMode) {
     cloudInventoryRouter,
     cloudTraceRouter,
   } = require("./cloud/router");
-  const { requireLocalReplicaWrite } = require("./cloud/access");
   app.use("/api/auth", cloudAuthRouter);
-  // cloud 模式的业务接口共用同一个写入边界：本地副本可写，远端数据库只读。
-  app.use("/api/masters", requireAuth, requireLocalReplicaWrite, cloudMastersRouter);
-  app.use("/api/documents", requireAuth, requireLocalReplicaWrite, cloudDocumentsRouter);
-  app.use("/api/inventory", requireAuth, requireLocalReplicaWrite, cloudInventoryRouter);
-  app.use("/api/trace", requireAuth, requireLocalReplicaWrite, cloudTraceRouter);
+  app.use("/api/masters", requireAuth, cloudMastersRouter);
+  app.use("/api/documents", requireAuth, cloudDocumentsRouter);
+  app.use("/api/inventory", requireAuth, cloudInventoryRouter);
+  app.use("/api/trace", requireAuth, cloudTraceRouter);
 } else {
   app.use("/api/auth", authRouter);
   app.use("/api/masters", requireAuth, mastersRouter);
