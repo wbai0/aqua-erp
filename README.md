@@ -1,197 +1,104 @@
-# 慈德 ERP Web / 移动客户端
+# 慈德 ERP · 库存只读查看端（Web / 移动）
 
-慈德 ERP 的 Web + 移动端（PWA）客户端，与现有 Windows 桌面客户端使用同一套业务概念，覆盖毛料、半成品和成品的入库、出库、盘点、即时库存与批次溯源。
+慈德 ERP 库存模块的 Web + 移动端（响应式）**只读查看器**。与现有 Windows 桌面客户端共用同一套业务数据（毛料 / 半成品 / 成品的入库、出库、即时库存、批次溯源），**直连生产库 `cide_main` 只读展示**，不做任何写入。
 
-项目可以连接生产数据库结构的本地副本 `cide_main_dev`，也可以直接连接远端生产数据库 `cide_main`。当前连接决定全部业务读写的目标数据库。
+> ⚠️ **本应用严格只读。** 服务端有硬拦截中间件，除登录外拒绝一切非 GET 请求（详见「只读安全边界」）。这是刻意的：桌面 ERP 的库存/批次逻辑靠单据现算，任何外部写入都会破坏它（背景见 [`docs/库存系统逻辑说明.md`](docs/库存系统逻辑说明.md)）。
+
+## 技术栈
+
+- **前端** React 18 + Vite + TypeScript，Ant Design 5（筛选/表单）+ **AG Grid**（企业级数据表：排序 / 列宽拖拽 / 换列序 / 分页 / 合计行）。
+- **后端** Node.js + Express + TypeScript，Prisma 仅作连接驱动（生产库为 SQL Server 2008 R2，手写只读 SQL）。
 
 ## 项目结构
 
 ```text
 cide-erp/
-├── server/                         # Node.js + TypeScript + Express + Prisma
+├── server/                       # Express + Prisma(仅 cloud 生成客户端)
 │   ├── prisma/
-│   │   ├── schema.prisma           # 早期简化开发账套 cide_erp
-│   │   ├── cloud.prisma            # 生产库内省结构（约 182 张表）
-│   │   ├── cloud.replica.prisma    # 自动生成，本地副本建表使用
-│   │   ├── seed.ts                 # 简化账套种子
-│   │   └── seed-cloud.ts           # 真实结构副本种子
-│   ├── scripts/
-│   │   ├── make-replica-schema.ts  # 生成可用于本地建表的 schema
-│   │   ├── sync-from-remote.ts      # 生产库只读 → 本地副本写入
-│   │   └── schema-check.ts          # 对比生产库结构
+│   │   └── cloud.prisma          # 生产库内省结构(生成 src/generated/cloud 客户端)
 │   └── src/
-│       ├── cloud/                   # 真实生产表结构路由及副本写入逻辑
-│       └── routes/                  # 简化账套路由
-├── web/                             # React + Vite + Ant Design 响应式 PWA
-├── docker-compose.yml               # 本地 SQL Server 2022
-└── package.json                     # npm workspaces
+│       ├── index.ts              # 入口 + 只读硬拦截中间件
+│       ├── auth.ts               # requireAuth (JWT 校验)
+│       ├── env.ts                # 加载 server/.env
+│       ├── generated/cloud/      # Prisma 生成的生产库客户端(已提交)
+│       └── cloud/
+│           ├── router.ts         # 只读业务路由(手写参数化 SQL + ROW_NUMBER 分页)
+│           ├── prisma.ts         # 连接生产库的 Prisma 实例
+│           └── access.ts         # 数据库标识解析(health 用)
+├── web/                          # React + Vite + AntD + AG Grid
+│   └── src/{pages, components, api.ts, App.tsx}
+├── docs/库存系统逻辑说明.md         # 桌面 ERP 库存/批次内在逻辑梳理(务必先读)
+├── Dockerfile / .dockerignore    # 容器化部署
+├── DEPLOY.md / s.yaml            # 部署说明 / Serverless Devs(阿里云 FC)配置
 ```
 
-## 数据源与安全边界
+## 环境配置
 
-服务端由 `DATA_SOURCE` 选择数据模型：
-
-| DATA_SOURCE | 连接变量 | 用途 | 写入权限 |
-|---|---|---|---|
-| `local` | `DATABASE_URL` | 早期简化账套 `cide_erp` | 可读写 |
-| `cloud` | `CLOUD_DATABASE_URL` 指向 localhost | 真实结构本地副本 `cide_main_dev` | 可读写 |
-| `cloud` | `CLOUD_DATABASE_URL` 指向远端主机 | 远端生产库 `cide_main` | 可读写 |
-
-cloud 模式下不存在独立的读连接或写连接。查询、新增、修改、删除和审核全部使用同一个 `CLOUD_DATABASE_URL`：指向本地时全部操作本地副本，指向远端时全部操作远端数据库，不存在部分接口仍写向另一个数据库的例外。
-
-远端连接凭据只应保存在 `server/.env`，该文件已被 Git 忽略。不要把生产连接串写入源码、README 或提交记录。
-
-## 本地开发
-
-### 1. 启动 SQL Server
-
-```bash
-docker compose up -d
-docker exec cide-erp-mssql /opt/mssql-tools18/bin/sqlcmd \
-  -S localhost -U sa -P '<本地 SA 密码>' -C \
-  -Q "CREATE DATABASE cide_main_dev COLLATE Chinese_PRC_CI_AS"
-```
-
-Apple Silicon Mac 需要在 Docker Desktop 中启用 x86_64/amd64 仿真。数据库必须使用 `Chinese_PRC_CI_AS`，否则部分中文数据可能写成 `??`。
-
-### 2. 安装依赖并配置环境
-
-```bash
-npm install
-cp server/.env.example server/.env
-```
-
-推荐的开发配置：
+凭据只放在 `server/.env`（已被 Git 忽略，**切勿**写入源码/README/提交记录）：
 
 ```dotenv
-DATA_SOURCE=cloud
-CLOUD_DATABASE_URL="sqlserver://localhost:1433;database=cide_main_dev;user=sa;password=<本地密码>;trustServerCertificate=true"
+PORT=3001
+JWT_SECRET="<自定义随机串>"
+READ_ONLY=true                    # 只读硬拦截(默认开启;设 false 才允许写,不建议对生产)
+CLOUD_DATABASE_URL="sqlserver://<生产主机>:1433;database=cide_main;user=<用户>;password=<密码>;encrypt=DANGER_PLAINTEXT;trustServerCertificate=true"
 ```
 
-需要直接操作远端数据库时，将同一个变量改为远端连接并重启服务：
+登录使用生产库 `t_a_personnel` 里的真实账号密码（桌面端同一套）。登录 token 存浏览器 `localStorage`，7 天有效。
 
-```dotenv
-DATA_SOURCE=cloud
-CLOUD_DATABASE_URL="sqlserver://<远端主机>:1433;database=cide_main;user=<用户>;password=<密码>;encrypt=DANGER_PLAINTEXT;trustServerCertificate=true"
-```
-
-页面顶部会显示当前数据库标识：本地连接显示 `LOCAL`，远端连接显示实际数据库名。远端模式下的新增、修改、删除、审核和取消审核会直接改变远端数据。
-
-`server/src/index.ts` 会在启动时自动加载 `server/.env`。
-
-### 3. 初始化真实结构副本
-
-只需要演示数据时：
+## 本地运行
 
 ```bash
-npm run replica:push -w server
-npm run replica:seed -w server
+npm install                       # 根目录(npm workspaces)
+npm run dev                       # 同时起 API 与 Web
 ```
 
-需要复制生产数据时，先配置只读的 `REMOTE_DATABASE_URL`，然后执行：
-
-```bash
-npm run replica:push -w server
-npm run replica:sync -w server
-```
-
-`replica:sync` 对远端只执行 `SELECT`，所有删除和写入只发生在 localhost 副本。同步会清空本地表，不要把 `CLOUD_DATABASE_URL` 指向需要保留数据的数据库。
-
-默认跳过日志、历史临时表以及超过 200,000 行的表。可通过 `SYNC_MAX_ROWS` 调整上限，或使用 `SYNC_ALL=1` 包含默认跳过的表。
-
-### 4. 启动项目
-
-```bash
-npm run dev
-```
-
-- API：<http://localhost:3001>
+- API：<http://localhost:3001> · 健康检查 <http://localhost:3001/api/health>
 - Web：<http://localhost:5173>
-- 健康检查：<http://localhost:3001/api/health>
 
-手机与开发机位于同一局域网时，可访问 `http://<开发机IP>:5173`。
+生产部署：`cd web && npm run build` 生成前端产物，服务端 `npm run build -w server && npm run start -w server` 会同时托管 `web/dist` 与 API。容器化见 `DEPLOY.md`。
 
-## 生产库结构与关键表
+需要在生产库结构变化后重新生成 Prisma 客户端时：`npm run cloud:generate -w server`（读 `prisma/cloud.prisma`，只读内省，不改库）。
 
-生产表结构通过 `prisma db pull` 内省保存到 `server/prisma/cloud.prisma`。主要映射如下：
+## 只读安全边界
 
-| 业务对象 | 生产表 | 说明 |
-|---|---|---|
-| 入库单 | `t_stock_in` | 状态、仓库、车次、制单与审核信息 |
-| 入库明细 | `t_stock_in_detail` | 物料、数量、检索码、批次、产地、供应商 |
-| 出库单 | `t_stock_out` | 与入库单结构对称 |
-| 出库明细 | `t_stock_out_detail` | 出库物料和批次信息 |
-| 仓库 | `t_a_stock` | 仓库主数据 |
-| 物料 | `t_a_material` | 物料编码、名称、类型和单位 |
-| 供应商 | `t_a_supplier` | 供应商主数据 |
-| 客户 | `t_a_cust` | 客户主数据 |
-| 用户 | `t_a_personnel` | 登录、制单人与审核人 |
-| 即时库存 | `t_stock_material` | 按仓库和物料维护的库存值 |
-| 批次库存 | `t_material_batch` | 批次入库量、出库量和剩余量 |
-| 库存流水 | `t_m_stock_journal` | 出入库流水 |
-| 单据类型 | `t_a_in_type` / `t_a_out_type` | 入库和出库类型字典 |
+- `server/src/index.ts` 注册全局中间件：`READ_ONLY` 开启时，除 `POST /api/auth/login` 外，**任何非 GET/HEAD/OPTIONS 请求一律 403**。
+- 服务端不注册任何写路由（无新增/修改/删除/审核）。前端也据 `capabilities.canWriteDocs=false` 隐藏所有写操作入口。
+- `/api/health` 会返回 `{ readOnly: true, database }`，页面顶部显示当前连接的数据库标识，便于核对。
 
-远端 SQL Server 版本较旧，不支持 `OFFSET/FETCH`。`server/src/cloud/router.ts` 因此使用参数化手写 SQL 和 `ROW_NUMBER()` 分页，Prisma 在这条路径中主要作为连接驱动与类型化写入客户端。
+## 核心业务逻辑（要点）
 
-## 单据流程
+> 完整梳理见 [`docs/库存系统逻辑说明.md`](docs/库存系统逻辑说明.md)。
 
-支持的基础流程为：
+- **库存靠单据现算，不看审核状态。** 即时库存 = 该物料 `Σ入库明细 − Σ出库明细`（含未审核单据）。桌面端正常运行时 `t_stock_material` / `t_material_batch` 的数量字段长期为 0，不作为库存来源。
+- **批次结余靠明细的 `material_batch_id` 现算**（复刻生产库函数 `f_get_material_batch_id_in_quantity` / `_in_used_quantity`）：批次入库量 − 已领用量。
+- **物料编码 = `类别.供应商.序号`**（如 `BCP.WXF.001`：BCP 半成品、WXF 供应商）。供应商即从编码第二段解析。
+- **两种出库**：生产出库按批次（`material_batch_id`），毛料出库按入库单（`in_detail`）。
+- **检索码 `s_code`** 贯穿「毛料 → 半成品 → 成品」全链路，用于批次溯源。
 
-```text
-未审核 → 审核 → 已审核 → 取消审核 → 未审核
-```
+生产库为较旧的 SQL Server，不支持 `OFFSET/FETCH`，故 `cloud/router.ts` 使用参数化手写 SQL 与 `ROW_NUMBER()` 分页。
 
-本地副本支持：
+## API（全部只读，登录除外）
 
-- 新建、修改、删除未审核单据
-- 审核与取消审核
-- 维护 `t_stock_material`
-- 创建入库批次
-- 出库时按 FIFO 模拟扣减 `t_material_batch`
-- 新增供应商、客户、物料、产地和包装物
+| 接口 | 说明 |
+|---|---|
+| `POST /api/auth/login` | 登录（唯一放行的写方法） |
+| `GET /api/masters/meta` | 仓库 / 供应商 / 客户 / 物料 / 产地 / 单位 / 单据类型 等基础数据 |
+| `GET /api/dashboard` | 工作台聚合：分类库存、在库品种、今日/近7天出入库动态 |
+| `GET /api/inventory` | 即时库存（支持 `byBatch` 及供应商/产地/仓库/类别多选、物料搜索的服务端筛选） |
+| `GET /api/documents` / `GET /api/documents/:id` | 单据列表 / 详情 |
+| `GET /api/trace` | 按检索码 / 批次 / 车次溯源 |
+| `GET /api/health` | 服务状态、只读标志、当前数据库 |
 
-生产库没有用于维护库存的触发器，实际库存逻辑位于旧桌面客户端。当前副本审核实现仅供开发和演示，尚未完整复刻桌面端行为，尤其没有完整覆盖 `t_m_stock_journal` 等关联表。
+## 前端页面
 
-当前 Web 端的副本审核逻辑尚未完整复刻旧桌面客户端。直接在远端执行审核或取消审核前，应确认取号规则及库存流水关联表符合生产要求。
+- **工作台**：分类库存总量、在库品种、今日/近7天出入库、溯源直达、最近单据。
+- **即时库存**：AG Grid 高密度表 + 顶部 antd 多选筛选（服务端查询）+ 底部按单位合计。
+- **单据管理**：入库/出库/盘点分组（左侧菜单按类型铺开），AG Grid 列表 + 筛选；点击进详情。
+- **批次溯源**：按检索码/车次查看全链路出入库事件。
+- 桌面端左侧导航 + 移动端底部导航,响应式。
 
-## 数据库维护命令
+## 关键约束
 
-在仓库根目录执行：
-
-```bash
-# 简化账套
-npm run db:push
-npm run db:seed
-
-# 真实结构本地副本
-npm run replica:push -w server
-npm run replica:seed -w server
-npm run replica:sync -w server
-
-# 只读检查生产 schema 是否变化
-npm run schema:check -w server
-```
-
-`schema:check` 使用 `REMOTE_DATABASE_URL` 对生产库执行只读内省。一致时输出成功信息；有差异时列出摘要，并把完整远端结构写入系统临时目录，不会直接覆盖项目 schema。
-
-## API 与前端功能
-
-主要接口：
-
-- `/api/auth/login`：登录
-- `/api/masters/meta`：仓库、物料、单位和单据类型等基础数据
-- `/api/documents`：单据查询与副本写入
-- `/api/inventory`：即时库存和批次库存
-- `/api/trace`：按检索码、批次或车次溯源
-- `/api/health`：服务状态与当前数据模式
-
-前端包含工作台、单据列表和表单、库存查询、批次溯源以及桌面/移动端响应式导航。工作台提供完整的待审核入库/出库计数；单据支持审核前库存影响摘要、批量审批、复制为新单、录入实时合计、自动暂存恢复和未保存离开提醒。批量审批通过独立 API 在一个 Serializable 事务中批量加载、校验和更新单据、即时库存及批次库存；任一单据失败时整批回滚。这些交互不改变“审核后才进入正式库存”的业务口径。登录 token 当前保存在浏览器 `localStorage`，有效期为 7 天。
-
-## 当前限制与后续工作
-
-- 确认生产单据 ID 的正式取号逻辑，重点检查 `t_e_counter`、`t_e_ordinal` 等表。
-- 在隔离测试账套中对比桌面端审核前后数据库快照，完整复刻库存和流水维护逻辑。
-- 改进混合入库/出库列表的全局分页。
-- 增加数据库同步中断后的约束恢复和完整性校验。
-- 完善用户权限、离线录单、Excel 导出和部署方案。
-- 生产部署时由 API 在受限网络内连接数据库，关闭数据库公网端口，对外仅暴露 HTTPS API。
+- 该端**只读**，不承担任何库存写入/审核；一切修改仍在桌面 ERP 完成。
+- 生产部署建议：API 在受限网络内连库，数据库不暴露公网，对外仅暴露 HTTPS API。
+- 生产连接使用老版 SQL Server 的 `encrypt=DANGER_PLAINTEXT`（TLS 1.0），迁移到 RDS 后应改为正常加密。
