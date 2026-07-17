@@ -26,7 +26,6 @@ import Login from "./pages/Login";
 import Home from "./pages/Home";
 import DocumentList from "./pages/DocumentList";
 import DocumentDetail from "./pages/DocumentDetail";
-import DocumentForm from "./pages/DocumentForm";
 import Inventory from "./pages/Inventory";
 import Trace from "./pages/Trace";
 
@@ -272,9 +271,7 @@ const router = createBrowserRouter([
       { path: "/docs", element: <DocumentList /> },
       { path: "/inventory", element: <Inventory /> },
       { path: "/trace", element: <Trace /> },
-      { path: "/documents/new", element: <DocumentForm /> },
       { path: "/documents/:id", element: <DocumentDetail /> },
-      { path: "/documents/:id/edit", element: <DocumentForm /> },
       // 旧路径兼容
       { path: "/in", element: <Navigate to="/docs?group=in" replace /> },
       { path: "/out", element: <Navigate to="/docs?group=out" replace /> },

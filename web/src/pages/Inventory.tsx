@@ -121,7 +121,7 @@ export default function Inventory() {
   }, [byBatch]);
 
   return (
-    <div>
+    <div className="inventory-page">
       <div className="page-header">
         <h1 className="page-title">即时库存</h1>
         <span>
@@ -134,7 +134,7 @@ export default function Inventory() {
         {byBatch ? " · 批次结余按明细的批次链接计算" : ""}
       </div>
 
-      <div className="filter-bar" style={{ flexWrap: "wrap", gap: 8 }}>
+      <div className="filter-bar inventory-filter-bar">
         <Select
           mode="multiple" allowClear showSearch optionFilterProp="label" maxTagCount="responsive"
           style={{ minWidth: 180 }} placeholder="供应商" value={fSuppliers} onChange={setFSuppliers}
@@ -163,8 +163,8 @@ export default function Inventory() {
         />
       </div>
 
-      <div className="panel" style={{ padding: 0, overflow: "hidden" }}>
-        <div style={{ height: "calc(100dvh - 258px)", minHeight: 440, width: "100%" }}>
+      <div className="panel inventory-grid-panel">
+        <div className="inventory-grid">
           <AgGridReact<StockRow>
             theme={gridTheme}
             rowData={rows}

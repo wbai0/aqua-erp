@@ -89,40 +89,22 @@ export default function DocumentList() {
   };
 
   const columns = useMemo<ColDef<Doc>[]>(() => [
-    { headerName: "单据编号", field: "docNo", width: 170, pinned: "left", cellClass: "num" },
+    // —— 第一屏核心:单号 / 类型 / 日期 / 物料 / 数量 ——
+    { headerName: "单据编号", field: "docNo", width: 168, pinned: "left", cellClass: "num" },
     {
-      headerName: "类型", width: 120,
+      headerName: "类型", width: 108,
       valueGetter: (p) => p.data ? typeLabels.get(p.data.docType) ?? p.data.docType : "",
     },
     {
-      headerName: "日期", field: "date", width: 116, sort: "desc",
+      headerName: "日期", field: "date", width: 108, sort: "desc",
       valueFormatter: (p: ValueFormatterParams<Doc, string>) => p.value ? dayjs(p.value).format("YYYY-MM-DD") : "",
     },
-    { headerName: "仓库", width: 105, valueGetter: (p) => p.data?.warehouse?.name ?? "" },
     {
-      headerName: group === "in" ? "供应商" : group === "out" ? "客户" : "往来单位", width: 120,
-      valueGetter: (p) => p.data?.supplier?.name ?? p.data?.customer?.name ?? "—",
-    },
-    { headerName: "制单人", width: 105, valueGetter: (p) => p.data?.createdBy?.displayName ?? "—" },
-    { headerName: "车次", field: "vehicleNo", width: 100, valueFormatter: (p) => p.value ?? "—" },
-    {
-      headerName: "检索码", width: 145, cellClass: "num",
-      valueGetter: (p) => p.data ? firstLine(p.data)?.retrievalCode ?? "—" : "",
-    },
-    {
-      headerName: "批次号", width: 110, cellClass: "num",
-      valueGetter: (p) => p.data ? firstLine(p.data)?.batchNo ?? "—" : "",
-    },
-    {
-      headerName: "产地", width: 105,
-      valueGetter: (p) => p.data ? firstLine(p.data)?.origin ?? "—" : "",
-    },
-    {
-      headerName: "物料编码", width: 145, cellClass: "num",
+      headerName: "物料编码", width: 140, cellClass: "num",
       valueGetter: (p) => p.data ? firstLine(p.data)?.material?.code ?? "—" : "",
     },
     {
-      headerName: "品名", width: 145,
+      headerName: "品名", width: 150,
       valueGetter: (p) => {
         if (!p.data) return "";
         const line = firstLine(p.data);
@@ -131,33 +113,56 @@ export default function DocumentList() {
       },
     },
     {
-      headerName: "规格", width: 110,
-      valueGetter: (p) => p.data ? firstLine(p.data)?.spec ?? "—" : "",
-    },
-    {
-      headerName: "数量", width: 135, type: "rightAligned", cellClass: "num",
+      headerName: "数量", width: 130, type: "rightAligned", cellClass: "num",
       valueGetter: (p) => p.data?.lines.reduce((sum, line) => sum + Number(line.quantity), 0) ?? 0,
       valueFormatter: (p: ValueFormatterParams<Doc, number>) => p.data ? qtyText(p.data) : "",
     },
+    // —— 溯源 + 往来单位 ——
     {
-      headerName: "件数", width: 120, type: "rightAligned", cellClass: "num",
+      headerName: "检索码", width: 140, cellClass: "num",
+      valueGetter: (p) => p.data ? firstLine(p.data)?.retrievalCode ?? "—" : "",
+    },
+    {
+      headerName: "批次号", width: 105, cellClass: "num",
+      valueGetter: (p) => p.data ? firstLine(p.data)?.batchNo ?? "—" : "",
+    },
+    {
+      headerName: group === "in" ? "供应商" : group === "out" ? "客户" : "往来单位", width: 118,
+      valueGetter: (p) => p.data?.supplier?.name ?? p.data?.customer?.name ?? "—",
+    },
+    {
+      headerName: "产地", width: 96,
+      valueGetter: (p) => p.data ? firstLine(p.data)?.origin ?? "—" : "",
+    },
+    // —— 次要上下文 ——
+    { headerName: "仓库", width: 100, valueGetter: (p) => p.data?.warehouse?.name ?? "" },
+    { headerName: "制单人", width: 96, valueGetter: (p) => p.data?.createdBy?.displayName ?? "—" },
+    { headerName: "车次", field: "vehicleNo", width: 90, valueFormatter: (p) => p.value ?? "—" },
+    // —— 明细属性 ——
+    {
+      headerName: "规格", width: 96,
+      valueGetter: (p) => p.data ? firstLine(p.data)?.spec ?? "—" : "",
+    },
+    {
+      headerName: "件数", width: 110, type: "rightAligned", cellClass: "num",
       valueGetter: (p) => p.data ? packQtyText(p.data) : "",
     },
     {
-      headerName: "工艺", width: 100,
+      headerName: "工艺", width: 96,
       valueGetter: (p) => p.data ? firstLine(p.data)?.tech ?? "—" : "",
     },
     {
-      headerName: "包装物", width: 120,
+      headerName: "包装物", width: 110,
       valueGetter: (p) => p.data ? firstLine(p.data)?.packaging ?? "—" : "",
     },
     {
-      headerName: "明细备注", width: 160,
+      headerName: "明细备注", width: 150,
       valueGetter: (p) => p.data ? firstLine(p.data)?.note ?? "—" : "",
     },
-    { headerName: "单据备注", field: "remark", width: 160, valueFormatter: (p) => p.value ?? "—" },
+    { headerName: "单据备注", field: "remark", width: 150, valueFormatter: (p) => p.value ?? "—" },
+    // —— 最次要 ——
     {
-      headerName: "审核状态", width: 100,
+      headerName: "审核状态", width: 96,
       valueGetter: (p) => p.data?.status === "APPROVED" ? "已审核" : "未审核",
       cellStyle: (p) => ({ color: p.data?.status === "APPROVED" ? "#23923d" : "#d97917", fontWeight: 600 }),
     },
@@ -171,7 +176,7 @@ export default function DocumentList() {
   }), []);
 
   return (
-    <div>
+    <div className="document-page">
       <div className="page-header">
         <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
           <h1 className="page-title">单据管理</h1>

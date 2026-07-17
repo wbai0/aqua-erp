@@ -7,16 +7,7 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "typecheck": "tsc --noEmit",
-    "db:generate": "prisma generate",
-    "db:push": "prisma db push",
-    "db:seed": "tsx prisma/seed.ts",
-    "replica:push": "tsx scripts/make-replica-schema.ts && prisma db push --schema prisma/cloud.replica.prisma",
-    "replica:seed": "tsx prisma/seed-cloud.ts",
-    "replica:sync": "tsx scripts/sync-from-remote.ts",
-    "schema:check": "tsx scripts/schema-check.ts"
-  },
-  "prisma": {
-    "seed": "tsx prisma/seed.ts"
+    "cloud:generate": "prisma generate --schema prisma/cloud.prisma"
   },
   "dependencies": {
     "@prisma/client": "^6.10.0",

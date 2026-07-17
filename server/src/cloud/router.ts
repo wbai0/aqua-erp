@@ -9,7 +9,6 @@ import crypto from "crypto";
 import { Prisma } from "../generated/cloud";
 import { cloudPrisma as db } from "./prisma";
 import { AuthUser } from "../auth";
-import { registerWriteRoutes } from "./writes";
 
 const JWT_SECRET = process.env.JWT_SECRET || "dev-secret";
 const md5 = (s: string) => crypto.createHash("md5").update(s, "utf8").digest("hex");
@@ -391,10 +390,7 @@ cloudDocumentsRouter.get("/:id", async (req, res) => {
   res.status(404).json({ error: "单据不存在" });
 });
 
-// 只读模式：不再注册任何写路由(新单/修改/删除/审核/取消审核/批量审核)。
-// 即使误注册，index.ts 的只读中间件也会挡住所有非 GET 请求。
-// registerWriteRoutes(cloudDocumentsRouter);
-void registerWriteRoutes; // 保留导入引用，避免未使用告警
+// 只读模式：不注册任何写路由(新单/修改/删除/审核)。index.ts 的只读中间件亦会兜底拦截非 GET 请求。
 
 // ---------- 工作台聚合(只读): 分类库存 / 今日与本周动态 / 在库品种数 ----------
 export const cloudDashboardRouter = Router();

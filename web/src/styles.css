@@ -138,7 +138,7 @@ body {
 .app-main {
   flex: 1; min-width: 0;
   padding: 14px 14px 80px;
-  max-width: 1360px; width: 100%; margin: 0 auto;
+  max-width: 1560px; width: 100%; margin: 0 auto;
 }
 
 .environment-context {
@@ -169,7 +169,7 @@ body {
 @media (min-width: 992px) {
   .side-nav { display: flex; }
   .bottom-nav { display: none; }
-  .app-main { padding: 22px 28px 36px; }
+  .app-main { padding: 16px 22px 28px; }
 }
 
 /* ---------- 页面通用 ---------- */
@@ -282,6 +282,57 @@ body {
 .document-grid { height: calc(100dvh - 258px); min-height: 440px; width: 100%; }
 .document-grid .ag-row { cursor: pointer; }
 .document-grid .ag-paging-panel { min-height: 48px; }
+.document-page .page-header { margin-bottom: 12px; }
+
+/* 库存页是高密度工作台，优先把可视空间留给表格 */
+.inventory-page {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100dvh - 80px);
+}
+.inventory-page .page-header { margin-bottom: 12px; }
+.inventory-filter-bar { gap: 8px; margin-bottom: 10px; }
+.inventory-grid-panel {
+  flex: 1;
+  min-height: 0;
+  padding: 0;
+  overflow: hidden;
+  margin-bottom: 0;
+}
+.inventory-grid {
+  height: calc(100dvh - 214px);
+  min-height: 540px;
+  width: 100%;
+}
+.inventory-grid .ag-paging-panel { min-height: 48px; }
+
+@media (min-width: 992px) {
+  .app-main:has(.inventory-page),
+  .app-main:has(.document-page) {
+    max-width: none;
+    padding: 14px 16px 16px;
+  }
+  .inventory-page {
+    min-height: calc(100dvh - 50px);
+  }
+  .inventory-grid {
+    height: calc(100dvh - 204px);
+  }
+  /* 单据页也全宽 + 撑满高度 */
+  .document-page {
+    display: flex;
+    flex-direction: column;
+    min-height: calc(100dvh - 50px);
+  }
+  .document-page .document-grid-panel {
+    flex: 1;
+    min-height: 0;
+    margin-bottom: 0;
+  }
+  .document-page .document-grid {
+    height: calc(100dvh - 196px);
+  }
+}
 
 /* 输入件圆角统一 */
 .ant-select .ant-select-selector,
